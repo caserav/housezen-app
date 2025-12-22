@@ -168,7 +168,7 @@
                 </div>
                 <div class="form-group">
                     <label>Teléfono de contacto</label>
-                    <input type="tel" id="user-phone" placeholder="Ej: 600 000 000">
+                    <input type="tel" id="user-phone" placeholder="Ej: 600000000">
                 </div>
                 <div class="form-group">
                     <label>ID / Referencia de contrato</label>
@@ -212,6 +212,7 @@
 
             if (window.innerWidth < 1000 && sidebar.classList.contains('active')) toggleMenu();
 
+            loadUserData(); // Aseguramos carga de datos antes de cualquier acción
             if (path === '/') loadUserDataIntoForm();
             if (path === '/profile') loadUserDataIntoProfile();
             if (path === '/incidencias') renderIncidents();
@@ -243,10 +244,12 @@
             });
         });
 
-        // ENVIAR A SUPABASE (CORREGIDO A 'urgencia')
+        // ENVIAR A SUPABASE
         async function handleSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
+
+            loadUserData(); // Re-cargar datos para asegurar que tenemos el teléfono
 
             if (!selectedCategory || !selectedUrgency) {
                 alert('Selecciona categoría y urgencia');
@@ -262,9 +265,9 @@
                     titulo: e.target.title.value,
                     descripcion: e.target.description.value,
                     categoria: selectedCategory,
-                    urgencia: selectedUrgency, // <--- CAMPO CLAVE
+                    urgencia: selectedUrgency,
                     direccion: userData.address || 'Sin dirección',
-                    telefono: userData.phone || 'Sin teléfono',
+                    telefono: (userData.phone || 'Sin teléfono').toString().trim(),
                     referencia: userData.ref || 'Sin ref'
                 }]);
 
@@ -282,49 +285,65 @@
             btn.innerHTML = 'Enviar Reporte <i class="fa-solid fa-paper-plane icon"></i>';
         }
 
-        // LEER DE SUPABASE (CORREGIDO A 'urgencia')
+        // LEER DE SUPABASE (CON FILTRO ROBUSTO)
         async function renderIncidents() {
-    const container = document.getElementById('incidents-list-container');
-    container.innerHTML = '<p style="text-align: center; padding: 20px;">Actualizando lista...</p>';
+            const container = document.getElementById('incidents-list-container');
+            container.innerHTML = '<p style="text-align: center; padding: 20px;">Actualizando lista...</p>';
 
-    // ESTA ES LA LÍNEA QUE FALTA: Carga los datos del perfil antes de buscar
-    loadUserData(); 
+            // Forzar lectura de memoria local
+            const saved = localStorage.getItem('hz_v4_config');
+            const currentData = saved ? JSON.parse(saved) : {};
+            const searchPhone = currentData.phone ? currentData.phone.toString().trim() : '---';
 
-    const { data, error } = await _supabase
-        .from('incidencias')
-        .select('*')
-        .eq('telefono', userData.phone || '---')
-        .order('created_at', { ascending: false });
+            const { data, error } = await _supabase
+                .from('incidencias')
+                .select('*')
+                .eq('telefono', searchPhone)
+                .order('created_at', { ascending: false });
 
-    if (error || !data || data.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px 0;">No hay incidencias registradas con este teléfono.</p>';
-        return;
-    }
+            if (error) {
+                container.innerHTML = `<p style="color:red; text-align:center;">Error de conexión: ${error.message}</p>`;
+                return;
+            }
 
-    container.innerHTML = data.map(inc => `
-        <div class="incident-item">
-            <div class="incident-header">
-                <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
-                <strong class="incident-title">${inc.titulo}</strong>
-            </div>
-            <p style="font-size:0.9rem; color:var(--text-light)">${inc.descripcion}</p>
-            <div class="incident-footer">
-                <span>${new Date(inc.created_at).toLocaleDateString()}</span>
-                <span class="urgency-badge urgency-${inc.urgencia}">${inc.urgencia}</span>
-            </div>
-        </div>
-    `).join('');
-}
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; color: var(--text-light); padding: 40px 10px;">
+                        <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.3;"></i>
+                        <p>No hay registros para: <b>${searchPhone}</b></p>
+                        <p style="font-size: 0.75rem; margin-top: 10px;">Asegúrate de que este número coincida con el que usaste para enviar el reporte.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = data.map(inc => `
+                <div class="incident-item">
+                    <div class="incident-header">
+                        <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
+                        <strong class="incident-title">${inc.titulo}</strong>
+                    </div>
+                    <p style="font-size:0.9rem; color:var(--text-light)">${inc.descripcion}</p>
+                    <div class="incident-footer">
+                        <span>${new Date(inc.created_at).toLocaleDateString()}</span>
+                        <span class="urgency-badge urgency-${inc.urgencia}">${inc.urgencia}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
 
         // PERFIL LOCAL
         function saveUserData() {
             const btn = document.getElementById('btnSave');
+            const phoneVal = document.getElementById('user-phone').value;
+            
             userData = {
                 address: document.getElementById('user-address').value,
-                phone: document.getElementById('user-phone').value,
+                phone: phoneVal ? phoneVal.toString().trim() : '',
                 ref: document.getElementById('user-ref').value
             };
+            
             localStorage.setItem('hz_v4_config', JSON.stringify(userData));
+            
             btn.classList.add('success');
             btn.innerHTML = '¡Guardado!';
             setTimeout(() => {
