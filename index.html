@@ -109,7 +109,6 @@
                     <div class="form-group" style="margin-bottom:0;">
                         <input type="text" id="inc-phone" readonly placeholder="Teléfono no configurado">
                     </div>
-                    <input type="hidden" id="inc-ref" name="ref">
                 </div>
 
                 <div class="card">
@@ -218,26 +217,11 @@
             if (path === '/incidencias') renderIncidents();
         }
 
-        // LÓGICA DE DESMARCADO
-        document.querySelectorAll('input[name="category"]').forEach(radio => {
-            radio.addEventListener('click', function() {
-                if (selectedCategory === this.value) {
-                    this.checked = false;
-                    selectedCategory = null;
-                } else {
-                    selectedCategory = this.value;
-                }
-            });
-        });
-
+        // LÓGICA BOTONES URGENCIA
         priorityButtons.forEach(btn => {
             btn.addEventListener('click', function() {
                 const level = this.getAttribute('data-level');
-                if (selectedUrgency === level) {
-                    selectedUrgency = null;
-                } else {
-                    selectedUrgency = level;
-                }
+                selectedUrgency = (selectedUrgency === level) ? null : level;
                 updateUrgencyButtons();
             });
         });
@@ -251,7 +235,15 @@
             urgencyInput.value = selectedUrgency || '';
         }
 
-        // SUPABASE: ENVIAR DATOS
+        // CATEGORIAS
+        document.querySelectorAll('input[name="category"]').forEach(radio => {
+            radio.addEventListener('click', function() {
+                selectedCategory = (selectedCategory === this.value) ? null : this.value;
+                if (!selectedCategory) this.checked = false;
+            });
+        });
+
+        // ENVIAR A SUPABASE (CORREGIDO A 'urgencia')
         async function handleSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
@@ -270,14 +262,14 @@
                     titulo: e.target.title.value,
                     descripcion: e.target.description.value,
                     categoria: selectedCategory,
-                    urgency: selectedUrgency,
+                    urgencia: selectedUrgency, // <--- CAMPO CLAVE
                     direccion: userData.address || 'Sin dirección',
                     telefono: userData.phone || 'Sin teléfono',
                     referencia: userData.ref || 'Sin ref'
                 }]);
 
             if (error) {
-                alert('Error: ' + error.message);
+                alert('Error al enviar: ' + error.message);
             } else {
                 alert('¡Incidencia enviada correctamente!');
                 e.target.reset();
@@ -290,7 +282,7 @@
             btn.innerHTML = 'Enviar Reporte <i class="fa-solid fa-paper-plane icon"></i>';
         }
 
-        // SUPABASE: LEER DATOS REALES
+        // LEER DE SUPABASE (CORREGIDO A 'urgencia')
         async function renderIncidents() {
             const container = document.getElementById('incidents-list-container');
             container.innerHTML = '<p style="text-align: center; padding: 20px;">Actualizando lista...</p>';
@@ -302,7 +294,7 @@
                 .order('created_at', { ascending: false });
 
             if (error || !data || data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px 0;">No tienes incidencias registradas con este teléfono.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px 0;">No hay incidencias registradas con este teléfono.</p>';
                 return;
             }
 
@@ -315,13 +307,13 @@
                     <p style="font-size:0.9rem; color:var(--text-light)">${inc.descripcion}</p>
                     <div class="incident-footer">
                         <span>${new Date(inc.created_at).toLocaleDateString()}</span>
-                        <span class="urgency-badge urgency-${inc.urgency}">${inc.urgency}</span>
+                        <span class="urgency-badge urgency-${inc.urgencia}">${inc.urgencia}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        // LOCAL STORAGE PARA PERFIL
+        // PERFIL LOCAL
         function saveUserData() {
             const btn = document.getElementById('btnSave');
             userData = {
@@ -355,7 +347,7 @@
             document.getElementById('user-ref').value = userData.ref || '';
         }
 
-        // INIT
+        // INICIO
         window.addEventListener('load', () => {
             loadUserData();
             showPage('/');
