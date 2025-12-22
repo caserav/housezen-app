@@ -284,34 +284,37 @@
 
         // LEER DE SUPABASE (CORREGIDO A 'urgencia')
         async function renderIncidents() {
-            const container = document.getElementById('incidents-list-container');
-            container.innerHTML = '<p style="text-align: center; padding: 20px;">Actualizando lista...</p>';
+    const container = document.getElementById('incidents-list-container');
+    container.innerHTML = '<p style="text-align: center; padding: 20px;">Actualizando lista...</p>';
 
-            const { data, error } = await _supabase
-                .from('incidencias')
-                .select('*')
-                .eq('telefono', userData.phone || '---')
-                .order('created_at', { ascending: false });
+    // ESTA ES LA LÍNEA QUE FALTA: Carga los datos del perfil antes de buscar
+    loadUserData(); 
 
-            if (error || !data || data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px 0;">No hay incidencias registradas con este teléfono.</p>';
-                return;
-            }
+    const { data, error } = await _supabase
+        .from('incidencias')
+        .select('*')
+        .eq('telefono', userData.phone || '---')
+        .order('created_at', { ascending: false });
 
-            container.innerHTML = data.map(inc => `
-                <div class="incident-item">
-                    <div class="incident-header">
-                        <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
-                        <strong class="incident-title">${inc.titulo}</strong>
-                    </div>
-                    <p style="font-size:0.9rem; color:var(--text-light)">${inc.descripcion}</p>
-                    <div class="incident-footer">
-                        <span>${new Date(inc.created_at).toLocaleDateString()}</span>
-                        <span class="urgency-badge urgency-${inc.urgencia}">${inc.urgencia}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
+    if (error || !data || data.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px 0;">No hay incidencias registradas con este teléfono.</p>';
+        return;
+    }
+
+    container.innerHTML = data.map(inc => `
+        <div class="incident-item">
+            <div class="incident-header">
+                <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
+                <strong class="incident-title">${inc.titulo}</strong>
+            </div>
+            <p style="font-size:0.9rem; color:var(--text-light)">${inc.descripcion}</p>
+            <div class="incident-footer">
+                <span>${new Date(inc.created_at).toLocaleDateString()}</span>
+                <span class="urgency-badge urgency-${inc.urgencia}">${inc.urgencia}</span>
+            </div>
+        </div>
+    `).join('');
+}
 
         // PERFIL LOCAL
         function saveUserData() {
