@@ -357,6 +357,22 @@
     authInitialized = true;
 }
 
+async function logout() {
+    console.log("Intentando cerrar sesión...");
+    
+    // 1. Llamamos a Supabase para destruir la sesión
+    const { error } = await _supabase.auth.signOut();
+    
+    if (error) {
+        console.error("Error al cerrar sesión:", error.message);
+        showToast("Error al cerrar sesión");
+    } else {
+        console.log("Sesión cerrada con éxito");
+        // 2. Limpiamos cualquier rastro y recargamos la web
+        // Al recargar, initializeAuth verá que no hay sesión y mostrará el login
+        window.location.href = "https://caserav.github.io/housezen-app/";
+    }
+}
 
         async function handleUserSession(session) {
             currentUser = session.user;
