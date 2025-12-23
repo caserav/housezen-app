@@ -208,8 +208,8 @@
                 <form id="incidentForm">
                     <div class="card">
                         <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Vivienda</h2>
-                        <div class="form-group"><input type="text" id="inc-address" readonly></div>
-                        <div class="form-group" style="margin-bottom: 0;"><input type="text" id="inc-phone" readonly></div>
+                        <div class="form-group"><input type="text" id="inc-address" readonly placeholder="Cargando dirección..."></div>
+                        <div class="form-group" style="margin-bottom: 0;"><input type="text" id="inc-phone" readonly placeholder="Cargando teléfono..."></div>
                     </div>
 
                     <div class="card">
@@ -271,7 +271,20 @@
         let selectedUrgency = null;
         let lastRadioChecked = null;
 
-        // LÓGICA DE INSTALACIÓN CORREGIDA
+        // Función nueva para cargar perfil y asegurar que se llenen los campos
+        async function loadProfile() {
+            if (!currentUser) return;
+            const { data: profile } = await _supabase.from('perfiles').select('direccion, telefono').eq('id', currentUser.id).single();
+            if (profile) {
+                document.getElementById('inc-address').value = profile.direccion || "";
+                document.getElementById('inc-phone').value = profile.telefono || "";
+                document.getElementById('user-address').value = profile.direccion || "";
+                document.getElementById('user-phone').value = profile.telefono || "";
+                return profile;
+            }
+            return null;
+        }
+
         function checkInstallation() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -321,15 +334,9 @@
                     document.getElementById('profile-name').value = fullName;
                     document.getElementById('profile-email').value = currentUser.email;
                     
-                    const { data: profile } = await _supabase.from('perfiles').select('direccion, telefono').eq('id', currentUser.id).single();
-
+                    const profile = await loadProfile();
                     if (!profile || !profile.direccion) {
                         document.getElementById('setup-modal').style.display = 'flex';
-                    } else {
-                        document.getElementById('inc-address').value = profile.direccion;
-                        document.getElementById('inc-phone').value = profile.telefono;
-                        document.getElementById('user-address').value = profile.direccion;
-                        document.getElementById('user-phone').value = profile.telefono;
                     }
                 } else {
                     document.getElementById('login-page').style.display = 'flex';
@@ -353,8 +360,7 @@
 
             if(error) { showToast("Error"); btn.disabled = false; } 
             else {
-                document.getElementById('inc-address').value = address;
-                document.getElementById('inc-phone').value = phone;
+                await loadProfile(); // Recargamos para que se actualice el frontal
                 btn.innerHTML = '¡Listo! ✅'; btn.classList.add('success');
                 setTimeout(() => {
                     btn.classList.remove('success'); btn.innerHTML = 'Guardar Cambios'; btn.disabled = false;
@@ -396,9 +402,15 @@
         }
 
         async function renderIncidents() {
+            if (!currentUser) return; // Evita que se quede cargando si no hay sesión
             const container = document.getElementById('incidents-list-container');
             container.innerHTML = '<p style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin"></i></p>';
-            const { data } = await _supabase.from('incidencias').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+            const { data, error } = await _supabase.from('incidencias').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+
+            if (error) {
+                container.innerHTML = '<div class="card" style="text-align:center;">Error al cargar datos.</div>';
+                return;
+            }
 
             if (!data || !data.length) {
                 container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">No hay reportes.</div>';
@@ -431,7 +443,11 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             const nav = document.querySelector(`[data-path="${path}"]`);
             if(nav) nav.classList.add('active');
+            
+            // Lógica al cambiar de página
+            if (path === '/') loadProfile(); // Aseguramos carga de vivienda
             if (path === '/incidencias') renderIncidents();
+
             if (window.innerWidth < 1000) { 
                 document.getElementById('sidebar').classList.remove('active');
                 document.getElementById('overlay').classList.remove('active');
