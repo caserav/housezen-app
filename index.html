@@ -184,7 +184,7 @@
             <div class="nav-item active" data-path="home" onclick="showPage('home')"><i class="fa-solid fa-plus-square"></i> Nueva incidencia</div>
             <div class="nav-item" data-path="incidencias" onclick="showPage('incidencias')"><i class="fa-solid fa-rectangle-list"></i> Mis Reportes</div>
             <div class="nav-item" data-path="profile" onclick="showPage('profile')"><i class="fa-solid fa-id-card"></i> Mi Perfil</div>
-            <div class="nav-item" onclick="logout()" style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); color: #ffab91;"><i class="fa-solid fa-power-off"></i> Salir</div>
+            <div class="nav-item" onclick="logout()" style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); color: #ffab91;"><i class="fa-solid fa-power-off"></i> Cerrar sesión</div>
         </nav>
 
         <main>
@@ -201,7 +201,7 @@
                     </div>
 
                     <div class="card">
-                        <h2><span class="icon"><i class="fa-solid fa-grip"></i></span> ¿Qué ha ocurrido?</h2>
+                        <h2><span class="icon"><i class="fa-solid fa-grip"></i></span> Categoría de avería</h2>
                         <div class="category-grid">
                             <label class="cat-option"><input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-droplet fa-xl"></i><span>Fontanería</span></div></label>
                             <label class="cat-option"><input type="radio" name="category" value="Electricidad" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-bolt-lightning fa-xl"></i><span>Luz</span></div></label>
@@ -278,11 +278,11 @@
         // INSTALACIÓN
         function dismissInstallBanner() {
             document.getElementById('install-banner').style.display = 'none';
-            localStorage.setItem('installBannerDismissed', 'true');
+            sessionStorage.setItem('installBannerDismissed', 'true');
         }
 
         function checkInstallation() {
-            const dismissed = localStorage.getItem('installBannerDismissed');
+            const dismissed = sessionStorage.getItem('installBannerDismissed');
             if (dismissed) return;
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
