@@ -42,7 +42,7 @@
             overscroll-behavior-y: contain;
         }
 
-        /* BANNER DE INSTALACIÓN (SOLO MÓVIL) */
+        /* BANNER DE INSTALACIÓN */
         #install-banner {
             position: fixed; bottom: 20px; left: 20px; right: 20px;
             background: var(--secondary); color: white;
@@ -129,7 +129,7 @@
 <body>
 
     <div id="install-banner">
-        <span class="install-close" onclick="this.parentElement.style.display='none'">×</span>
+        <span class="install-close" onclick="dismissInstallBanner()">×</span>
         <div class="install-header">
             <div class="install-icon">H</div>
             <div>
@@ -181,14 +181,14 @@
                 <div style="font-size: 0.7rem; color: var(--primary); text-transform: uppercase;">Inquilino</div>
                 <div id="user-name" style="font-size: 1.1rem;">...</div>
             </div>
-            <div class="nav-item active" data-path="/" onclick="showPage('/')"><i class="fa-solid fa-plus-square"></i> Nueva incidencia</div>
-            <div class="nav-item" data-path="/incidencias" onclick="showPage('/incidencias')"><i class="fa-solid fa-rectangle-list"></i> Mis Reportes</div>
-            <div class="nav-item" data-path="/profile" onclick="showPage('/profile')"><i class="fa-solid fa-id-card"></i> Mi Perfil</div>
+            <div class="nav-item active" data-path="home" onclick="showPage('home')"><i class="fa-solid fa-plus-square"></i> Nueva incidencia</div>
+            <div class="nav-item" data-path="incidencias" onclick="showPage('incidencias')"><i class="fa-solid fa-rectangle-list"></i> Mis Reportes</div>
+            <div class="nav-item" data-path="profile" onclick="showPage('profile')"><i class="fa-solid fa-id-card"></i> Mi Perfil</div>
             <div class="nav-item" onclick="logout()" style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); color: #ffab91;"><i class="fa-solid fa-power-off"></i> Salir</div>
         </nav>
 
         <main>
-            <div id="page-/" class="page active">
+            <div id="page-home" class="page active">
                 <form id="incidentForm">
                     <div class="card">
                         <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Vivienda actual</h2>
@@ -215,11 +215,11 @@
                         <h2><span class="icon"><i class="fa-solid fa-comment-dots"></i></span> Detalles técnicos</h2>
                         <div class="form-group">
                             <label>Breve resumen</label>
-                            <input type="text" name="title" placeholder="Breve descripción de la avería">
+                            <input type="text" name="title" placeholder="Breve descripción de la avería" maxlength="100">
                         </div>
                         <div class="form-group">
                             <label>Explícanos más</label>
-                            <textarea name="description" rows="3" placeholder="Danos una descripción detallada de la incidencia"></textarea>
+                            <textarea name="description" rows="3" placeholder="Danos una descripción detallada de la incidencia" maxlength="500"></textarea>
                         </div>
                         <label>Nivel de Urgencia</label>
                         <div style="display:flex; gap:10px; margin-top:10px;">
@@ -235,11 +235,11 @@
                 </form>
             </div>
 
-            <div id="page-/incidencias" class="page">
+            <div id="page-incidencias" class="page">
                 <div id="incidents-list-container"></div>
             </div>
 
-            <div id="page-/profile" class="page">
+            <div id="page-profile" class="page">
                 <div class="card">
                     <h2><span class="icon"><i class="fa-solid fa-user-check"></i></span> Mis Datos de Contacto</h2>
                     <div class="form-group">
@@ -252,11 +252,11 @@
                     </div>
                     <div class="form-group">
                         <label>Dirección de la vivienda</label>
-                        <input type="text" id="user-address" placeholder="Ej: Calle Gran Vía 1, 4ºB">
+                        <input type="text" id="user-address" placeholder="Ej: Calle Gran Vía 1, 4ºB" maxlength="200">
                     </div>
                     <div class="form-group">
                         <label>Móvil de contacto</label>
-                        <input type="tel" id="user-phone" placeholder="Ej: 600000000">
+                        <input type="tel" id="user-phone" placeholder="Ej: 600000000" maxlength="15">
                     </div>
                     <button class="submit-btn" id="btnSave" onclick="saveUserData()">Guardar Cambios</button>
                 </div>
@@ -272,20 +272,28 @@
         let currentUser = null;
         let selectedUrgency = null;
         let lastRadioChecked = null;
+        let authInitialized = false;
+        let isSubmitting = false;
 
-        // LÓGICA DE INSTALACIÓN
+        // INSTALACIÓN
+        function dismissInstallBanner() {
+            document.getElementById('install-banner').style.display = 'none';
+            localStorage.setItem('installBannerDismissed', 'true');
+        }
+
         function checkInstallation() {
+            const dismissed = localStorage.getItem('installBannerDismissed');
+            if (dismissed) return;
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
             const banner = document.getElementById('install-banner');
             const instructions = document.getElementById('install-instructions');
-            
             if (!isStandalone && isMobile) {
                 const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
                 if (isiOS) {
                     banner.style.display = 'flex';
                     instructions.innerHTML = 'Pulsa <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket"></i> y luego <strong>"Añadir a pantalla de inicio"</strong>.';
-                } else if (/Android/.test(navigator.userAgent)) {
+                } else {
                     banner.style.display = 'flex';
                     instructions.innerHTML = 'Pulsa los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical"></i> y elige <strong>"Instalar aplicación"</strong>.';
                 }
@@ -299,6 +307,7 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
+        // AUTH
         async function login() {
             await _supabase.auth.signInWithOAuth({ 
                 provider: 'google',
@@ -311,37 +320,48 @@
             window.location.reload();
         }
 
-        // CORRECCIÓN BUCLE: Solo mostramos login si realmente no hay sesión activa
-        async function checkUser() {
-            _supabase.auth.onAuthStateChange(async (event, session) => {
-                if (session && session.user) {
-                    currentUser = session.user;
-                    document.getElementById('login-page').style.display = 'none';
-                    document.getElementById('app-content').style.display = 'block';
-                    
-                    const fullName = currentUser.user_metadata.full_name || "Usuario";
-                    document.getElementById('user-name').innerText = fullName.split(' ')[0];
-                    document.getElementById('profile-name').value = fullName;
-                    document.getElementById('profile-email').value = currentUser.email;
-                    
-                    const { data: profile } = await _supabase.from('perfiles').select('direccion, telefono').eq('id', currentUser.id).single();
+        async function initializeAuth() {
+            if (authInitialized) return;
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) {
+                await handleUserSession(session);
+            } else {
+                document.getElementById('login-page').style.display = 'flex';
+            }
+            authInitialized = true;
 
-                    if (!profile || !profile.direccion) {
-                        document.getElementById('setup-modal').style.display = 'flex';
-                    } else {
-                        document.getElementById('inc-address').value = profile.direccion;
-                        document.getElementById('inc-phone').value = profile.telefono;
-                        document.getElementById('user-address').value = profile.direccion;
-                        document.getElementById('user-phone').value = profile.telefono;
-                    }
-                } else {
-                    // Si no hay sesión, mostramos el login
-                    document.getElementById('login-page').style.display = 'flex';
-                    document.getElementById('app-content').style.display = 'none';
+            _supabase.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'SIGNED_IN' && session) {
+                    await handleUserSession(session);
+                } else if (event === 'SIGNED_OUT') {
+                    window.location.reload();
                 }
             });
         }
 
+        async function handleUserSession(session) {
+            currentUser = session.user;
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            
+            const fullName = currentUser.user_metadata?.full_name || "Usuario";
+            document.getElementById('user-name').innerText = fullName.split(' ')[0];
+            document.getElementById('profile-name').value = fullName;
+            document.getElementById('profile-email').value = currentUser.email || '';
+            
+            const { data: profile } = await _supabase.from('perfiles').select('*').eq('id', currentUser.id).single();
+
+            if (!profile || !profile.direccion || !profile.telefono) {
+                document.getElementById('setup-modal').style.display = 'flex';
+            } else {
+                document.getElementById('inc-address').value = profile.direccion;
+                document.getElementById('inc-phone').value = profile.telefono;
+                document.getElementById('user-address').value = profile.direccion;
+                document.getElementById('user-phone').value = profile.telefono;
+            }
+        }
+
+        // FUNCIONALIDAD FORMULARIO
         function handleRadioClick(radio) {
             if (lastRadioChecked === radio) { radio.checked = false; lastRadioChecked = null; } 
             else { lastRadioChecked = radio; }
@@ -350,7 +370,7 @@
         async function saveUserData() {
             const address = document.getElementById('user-address').value.trim();
             const phone = document.getElementById('user-phone').value.trim();
-            if(!address || !phone) return showToast("Rellena todos los campos");
+            if(!address || !phone) return showToast("Faltan datos");
             
             const btn = document.getElementById('btnSave');
             btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
@@ -361,41 +381,41 @@
                 document.getElementById('inc-address').value = address;
                 document.getElementById('inc-phone').value = phone;
                 btn.innerHTML = '¡Guardado! ✅'; btn.classList.add('success');
+                document.getElementById('setup-modal').style.display = 'none';
                 setTimeout(() => {
                     btn.classList.remove('success'); btn.innerHTML = 'Guardar Cambios'; btn.disabled = false;
-                    showPage('/');
+                    showPage('home');
                 }, 1000);
             }
         }
 
-        function goToProfile() { document.getElementById('setup-modal').style.display = 'none'; showPage('/profile'); }
-
         async function handleSubmit(e) {
             e.preventDefault();
+            if (isSubmitting) return;
             const category = e.target.querySelector('input[name="category"]:checked');
             const title = e.target.title.value.trim();
-            const description = e.target.description.value.trim();
-
             if (!category || !title || !selectedUrgency) return showToast("Revisa el formulario");
 
+            isSubmitting = true;
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true; btn.innerHTML = 'Enviando...';
 
             const { error } = await _supabase.from('incidencias').insert([{
-                titulo: title, descripcion: description, categoria: category.value, urgencia: selectedUrgency,
+                titulo: title, descripcion: e.target.description.value.trim(),
+                categoria: category.value, urgencia: selectedUrgency,
                 direccion: document.getElementById('inc-address').value,
                 telefono: document.getElementById('inc-phone').value,
                 user_id: currentUser.id, nombre_inquilino: currentUser.user_metadata.full_name, email_inquilino: currentUser.email
             }]);
 
-            if (error) { showToast('Error'); btn.disabled = false; } 
+            if (error) { showToast('Error'); btn.disabled = false; isSubmitting = false; } 
             else {
                 btn.innerHTML = '¡Enviado! ✅'; btn.classList.add('success');
                 setTimeout(() => {
                     e.target.reset(); selectedUrgency = null;
                     document.querySelectorAll('.priority-btn').forEach(b => b.className = 'priority-btn');
                     btn.className = 'submit-btn'; btn.innerHTML = 'Enviar a Housezen <i class="fa-solid fa-paper-plane"></i>';
-                    btn.disabled = false; showPage('/incidencias');
+                    btn.disabled = false; isSubmitting = false; showPage('incidencias');
                 }, 1200);
             }
         }
@@ -406,14 +426,14 @@
             const { data } = await _supabase.from('incidencias').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
 
             if (!data || !data.length) {
-                container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">No hay reportes aún.</div>';
+                container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">Sin reportes.</div>';
                 return;
             }
 
-            container.innerHTML = '<h2 style="margin-bottom:15px; padding-left:5px;">Historial</h2>' + data.map(inc => `
+            container.innerHTML = '<h2 style="margin-bottom:15px;">Historial</h2>' + data.map(inc => `
                 <div class="incident-item">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
-                        <strong style="color:var(--secondary);">${inc.titulo}</strong>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <strong>${inc.titulo}</strong>
                         <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
                     </div>
                     <p style="font-size:0.85rem; color:var(--text-light);">${inc.descripcion}</p>
@@ -430,19 +450,20 @@
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        function showPage(path) {
+        function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(`page-${path}`).classList.add('active');
+            document.getElementById(`page-${pageId}`).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const nav = document.querySelector(`[data-path="${path}"]`);
+            const nav = document.querySelector(`[data-path="${pageId}"]`);
             if(nav) nav.classList.add('active');
-            if (path === '/incidencias') renderIncidents();
-            // Solo cerramos menú si está abierto y es vista móvil
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar.classList.contains('active')) { toggleMenu(); }
+            if (pageId === 'incidencias') renderIncidents();
+            if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
             window.scrollTo(0,0);
         }
 
+        function goToProfile() { document.getElementById('setup-modal').style.display = 'none'; showPage('profile'); }
+
+        // EVENT LISTENERS
         document.querySelectorAll('.priority-btn').forEach(btn => {
             btn.onclick = function() {
                 const level = this.dataset.level;
@@ -453,7 +474,7 @@
         });
 
         document.getElementById('incidentForm').onsubmit = handleSubmit;
-        window.onload = () => { checkUser(); checkInstallation(); };
+        window.onload = () => { initializeAuth(); checkInstallation(); };
     </script>
 </body>
 </html>
