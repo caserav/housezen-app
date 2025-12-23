@@ -39,10 +39,9 @@
             color: var(--text-main); 
             line-height: 1.6; 
             overflow-x: hidden;
-            overscroll-behavior-y: contain; /* Evita el efecto rebote de navegador */
+            overscroll-behavior-y: contain;
         }
 
-        /* TOAST NOTIFICATION */
         #toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: #333; color: white; padding: 12px 25px; border-radius: 50px;
@@ -51,17 +50,14 @@
         }
         #toast.show { transform: translateX(-50%) translateY(0); }
 
-        /* PANTALLA DE LOGIN */
         #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; background: white; }
         .google-btn { background: white; color: var(--text-main); padding: 15px 25px; border: 2px solid var(--border); border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); transition: 0.3s; }
 
         #app-content { display: none; }
 
-        /* MODAL */
         #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 
-        /* BARRA SUPERIOR OPTIMIZADA PARA NOTCH */
         .top-bar { 
             position: fixed; top: 0; left: 0; width: 100%; height: 70px; 
             background: var(--surface); display: flex; align-items: center; 
@@ -111,7 +107,6 @@
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1000; backdrop-filter: blur(2px); }
         .menu-overlay.active { display: block; }
 
-        /* DISEÑO DE ICONO DENTRO DE LA APP (LOGO) */
         .logo-h { width: 30px; height: 30px; background: var(--primary); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.2rem; }
     </style>
 </head>
@@ -192,7 +187,7 @@
                         <h2><span class="icon"><i class="fa-solid fa-comment-dots"></i></span> Detalles técnicos</h2>
                         <div class="form-group">
                             <label>Breve resumen</label>
-                            <input type="text" name="title" placeholder="Breve escripción de la avería">
+                            <input type="text" name="title" placeholder="Breve descripción de la avería">
                         </div>
                         <div class="form-group">
                             <label>Explícanos más</label>
@@ -260,7 +255,7 @@
         async function login() {
             await _supabase.auth.signInWithOAuth({ 
                 provider: 'google',
-                options: { redirectTo: window.location.href }
+                options: { redirectTo: window.location.origin + window.location.pathname }
             });
         }
 
@@ -270,32 +265,36 @@
         }
 
         async function checkUser() {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (user) {
-                currentUser = user;
-                document.getElementById('login-page').style.display = 'none';
-                document.getElementById('app-content').style.display = 'block';
-                
-                const fullName = user.user_metadata.full_name || "Usuario";
-                document.getElementById('user-name').innerText = fullName.split(' ')[0];
-                document.getElementById('profile-name').value = fullName;
-                document.getElementById('profile-email').value = user.email;
-                
-                const { data: profile } = await _supabase
-                    .from('perfiles')
-                    .select('direccion, telefono')
-                    .eq('id', user.id)
-                    .single();
+            _supabase.auth.onAuthStateChange(async (event, session) => {
+                if (session && session.user) {
+                    currentUser = session.user;
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('app-content').style.display = 'block';
+                    
+                    const fullName = currentUser.user_metadata.full_name || "Usuario";
+                    document.getElementById('user-name').innerText = fullName.split(' ')[0];
+                    document.getElementById('profile-name').value = fullName;
+                    document.getElementById('profile-email').value = currentUser.email;
+                    
+                    const { data: profile } = await _supabase
+                        .from('perfiles')
+                        .select('direccion, telefono')
+                        .eq('id', currentUser.id)
+                        .single();
 
-                if (!profile || !profile.direccion) {
-                    document.getElementById('setup-modal').style.display = 'flex';
+                    if (!profile || !profile.direccion) {
+                        document.getElementById('setup-modal').style.display = 'flex';
+                    } else {
+                        document.getElementById('inc-address').value = profile.direccion;
+                        document.getElementById('inc-phone').value = profile.telefono;
+                        document.getElementById('user-address').value = profile.direccion;
+                        document.getElementById('user-phone').value = profile.telefono;
+                    }
                 } else {
-                    document.getElementById('inc-address').value = profile.direccion;
-                    document.getElementById('inc-phone').value = profile.telefono;
-                    document.getElementById('user-address').value = profile.direccion;
-                    document.getElementById('user-phone').value = profile.telefono;
+                    document.getElementById('login-page').style.display = 'flex';
+                    document.getElementById('app-content').style.display = 'none';
                 }
-            }
+            });
         }
 
         function handleRadioClick(radio) {
