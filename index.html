@@ -42,7 +42,7 @@
             overscroll-behavior-y: contain;
         }
 
-        /* BANNER DE INSTALACIÓN CORREGIDO */
+        /* BANNER DE INSTALACIÓN (SOLO MÓVIL) */
         #install-banner {
             position: fixed; bottom: 20px; left: 20px; right: 20px;
             background: var(--secondary); color: white;
@@ -54,16 +54,10 @@
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         .install-header { display: flex; align-items: center; gap: 12px; }
-        .install-icon { 
-            width: 45px; height: 45px; 
-            background: var(--primary); 
-            border-radius: 12px; 
-            display: flex; align-items: center; justify-content: center; 
-        }
-        .install-steps { font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 12px; border-radius: 10px; line-height: 1.4; }
+        .install-icon { width: 45px; height: 45px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.4rem; color: white; }
+        .install-steps { font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; line-height: 1.4; }
         .install-close { position: absolute; top: 10px; right: 15px; color: rgba(255,255,255,0.5); font-size: 1.2rem; cursor: pointer; }
 
-        /* TOAST NOTIFICACIÓN */
         #toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: #333; color: white; padding: 12px 25px; border-radius: 50px;
@@ -72,17 +66,14 @@
         }
         #toast.show { transform: translateX(-50%) translateY(0); }
 
-        /* LOGIN */
         #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; background: white; }
         .google-btn { background: white; color: var(--text-main); padding: 15px 25px; border: 2px solid var(--border); border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); transition: 0.3s; }
 
         #app-content { display: none; }
 
-        /* MODAL PERFIL */
         #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 
-        /* NAVEGACIÓN */
         .top-bar { 
             position: fixed; top: 0; left: 0; width: 100%; height: 70px; 
             background: var(--surface); display: flex; align-items: center; 
@@ -96,10 +87,6 @@
         .nav-item { padding: 18px 25px; display: flex; align-items: center; gap: 15px; color: rgba(255,255,255,0.7); cursor: pointer; }
         .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--primary); }
 
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1000; backdrop-filter: blur(2px); }
-        .menu-overlay.active { display: block; }
-
-        /* PÁGINAS Y CARDS */
         .page { display: none; padding: 90px 20px 40px; max-width: 1000px; margin: 0 auto; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -108,7 +95,6 @@
         h2 { font-size: 0.85rem; color: var(--secondary); margin-bottom: 18px; display: flex; align-items: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         h2 .icon { margin-right: 10px; color: var(--primary); background: #E0F2F1; padding: 8px; border-radius: 8px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
 
-        /* FORMULARIOS */
         .form-group { margin-bottom: 16px; }
         label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
         input, textarea { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; background: #FAFAFA; transition: 0.3s; appearance: none; }
@@ -118,24 +104,24 @@
         .submit-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.4s; gap: 10px; font-size: 1rem; }
         .submit-btn.success { background: #4CAF50 !important; }
 
-        /* CATEGORÍAS */
         .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
         .cat-option input { display: none; }
         .cat-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; background: white; transition: 0.2s; font-size: 0.75rem; font-weight: 600; text-align: center; }
-        .cat-option input:checked + .cat-card { border-color: var(--primary); background: #E0F2F1; color: var(--primary-dark); transform: scale(0.95); }
+        .cat-option input:checked + .cat-card { border-color: var(--primary); background: #E0F2F1; color: var(--primary-dark); transform: scale(0.98); }
 
-        /* PRIORIDADES */
         .priority-btn { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid var(--border); background: #fff; text-align: center; cursor: pointer; font-weight: 700; font-size: 0.8rem; transition: 0.2s; }
         .priority-btn.selected.urgency-baja { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
         .priority-btn.selected.urgency-media { background: #fffde7; border-color: #ffeb3b; color: #f9a825; }
         .priority-btn.selected.urgency-alta { background: #ffebee; border-color: #f44336; color: #c62828; }
 
-        /* LISTA INCIDENCIAS */
-        .incident-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 15px; position: relative; }
+        .incident-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 15px; position: relative; overflow: hidden; }
         .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; color: white; text-transform: uppercase; }
         .status-Enviada { background: #3498db; }
         .status-Proceso { background: #f1c40f; }
         .status-Resuelta { background: #2ecc71; }
+        
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1000; backdrop-filter: blur(2px); }
+        .menu-overlay.active { display: block; }
 
         .logo-h { width: 30px; height: 30px; background: var(--primary); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.2rem; }
     </style>
@@ -145,12 +131,10 @@
     <div id="install-banner">
         <span class="install-close" onclick="this.parentElement.style.display='none'">×</span>
         <div class="install-header">
-            <div class="install-icon">
-                <i class="fa-solid fa-house-chimney" style="color: white; font-size: 1.2rem;"></i>
-            </div>
+            <div class="install-icon">H</div>
             <div>
-                <strong style="display:block">Instalar Housezen</strong>
-                <span style="font-size:0.75rem; opacity:0.8">Acceso directo en tu móvil</span>
+                <strong style="display:block">Instala Housezen</strong>
+                <span style="font-size:0.75rem; opacity:0.8">Reporta averías más rápido</span>
             </div>
         </div>
         <div id="install-instructions" class="install-steps"></div>
@@ -176,7 +160,7 @@
                 <i class="fa-solid fa-user-pen" style="font-size: 1.5rem; color: #FBC02D;"></i>
             </div>
             <h3>Perfil Incompleto</h3>
-            <p style="color: var(--text-light); margin: 15px 0; font-size: 0.9rem;">Necesitamos tu dirección y teléfono para enviar a los técnicos.</p>
+            <p style="color: var(--text-light); margin: 15px 0; font-size: 0.9rem;">Necesitamos tu dirección y teléfono para poder enviar técnicos a tu vivienda.</p>
             <button class="submit-btn" onclick="goToProfile()">Completar ahora</button>
         </div>
     </div>
@@ -185,7 +169,7 @@
         <div class="top-bar">
             <button class="menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars-staggered fa-lg"></i></button>
             <div class="logo-text">
-                <div class="logo-h"><i class="fa-solid fa-house-chimney" style="font-size: 0.9rem;"></i></div>
+                <div class="logo-h">H</div>
                 Housezen
             </div>
         </div>
@@ -193,9 +177,9 @@
         <div class="menu-overlay" id="overlay" onclick="toggleMenu()"></div>
         
         <nav class="sidebar-nav" id="sidebar">
-            <div style="padding: 25px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;">
-                <div style="font-size: 0.7rem; color: var(--primary); text-transform: uppercase; font-weight: 800;">Inquilino</div>
-                <div id="user-name" style="font-size: 1.1rem; font-weight: 700;">...</div>
+            <div style="padding: 25px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;">
+                <div style="font-size: 0.7rem; color: var(--primary); text-transform: uppercase;">Inquilino</div>
+                <div id="user-name" style="font-size: 1.1rem;">...</div>
             </div>
             <div class="nav-item active" data-path="/" onclick="showPage('/')"><i class="fa-solid fa-plus-square"></i> Nueva incidencia</div>
             <div class="nav-item" data-path="/incidencias" onclick="showPage('/incidencias')"><i class="fa-solid fa-rectangle-list"></i> Mis Reportes</div>
@@ -207,13 +191,17 @@
             <div id="page-/" class="page active">
                 <form id="incidentForm">
                     <div class="card">
-                        <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Vivienda</h2>
-                        <div class="form-group"><input type="text" id="inc-address" readonly></div>
-                        <div class="form-group" style="margin-bottom: 0;"><input type="text" id="inc-phone" readonly></div>
+                        <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Vivienda actual</h2>
+                        <div class="form-group">
+                            <input type="text" id="inc-address" readonly>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <input type="text" id="inc-phone" readonly>
+                        </div>
                     </div>
 
                     <div class="card">
-                        <h2><span class="icon"><i class="fa-solid fa-grip"></i></span> Categoría</h2>
+                        <h2><span class="icon"><i class="fa-solid fa-grip"></i></span> ¿Qué ha ocurrido?</h2>
                         <div class="category-grid">
                             <label class="cat-option"><input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-droplet fa-xl"></i><span>Fontanería</span></div></label>
                             <label class="cat-option"><input type="radio" name="category" value="Electricidad" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-bolt-lightning fa-xl"></i><span>Luz</span></div></label>
@@ -224,16 +212,16 @@
                     </div>
 
                     <div class="card">
-                        <h2><span class="icon"><i class="fa-solid fa-comment-dots"></i></span> Detalles</h2>
+                        <h2><span class="icon"><i class="fa-solid fa-comment-dots"></i></span> Detalles técnicos</h2>
                         <div class="form-group">
-                            <label>Resumen</label>
-                            <input type="text" name="title" placeholder="¿Qué se ha roto?">
+                            <label>Breve resumen</label>
+                            <input type="text" name="title" placeholder="Breve descripción de la avería">
                         </div>
                         <div class="form-group">
-                            <label>Descripción</label>
-                            <textarea name="description" rows="3" placeholder="Explícanos brevemente..."></textarea>
+                            <label>Explícanos más</label>
+                            <textarea name="description" rows="3" placeholder="Danos una descripción detallada de la incidencia"></textarea>
                         </div>
-                        <label>Urgencia</label>
+                        <label>Nivel de Urgencia</label>
                         <div style="display:flex; gap:10px; margin-top:10px;">
                             <div class="priority-btn" data-level="baja">Baja</div>
                             <div class="priority-btn" data-level="media">Media</div>
@@ -241,7 +229,9 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="submit-btn" id="btnSubmit">Enviar Reporte <i class="fa-solid fa-paper-plane"></i></button>
+                    <button type="submit" class="submit-btn" id="btnSubmit">
+                        Enviar a Housezen <i class="fa-solid fa-paper-plane"></i>
+                    </button>
                 </form>
             </div>
 
@@ -251,11 +241,23 @@
 
             <div id="page-/profile" class="page">
                 <div class="card">
-                    <h2><span class="icon"><i class="fa-solid fa-user-check"></i></span> Mis Datos</h2>
-                    <div class="form-group"><label>Nombre</label><input type="text" id="profile-name" readonly></div>
-                    <div class="form-group"><label>Email</label><input type="text" id="profile-email" readonly></div>
-                    <div class="form-group"><label>Dirección vivienda</label><input type="text" id="user-address" placeholder="Ej: Calle Gran Vía 1"></div>
-                    <div class="form-group"><label>Teléfono móvil</label><input type="tel" id="user-phone" placeholder="Ej: 600000000"></div>
+                    <h2><span class="icon"><i class="fa-solid fa-user-check"></i></span> Mis Datos de Contacto</h2>
+                    <div class="form-group">
+                        <label>Nombre de usuario</label>
+                        <input type="text" id="profile-name" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Email de contacto</label>
+                        <input type="text" id="profile-email" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección de la vivienda</label>
+                        <input type="text" id="user-address" placeholder="Ej: Calle Gran Vía 1, 4ºB">
+                    </div>
+                    <div class="form-group">
+                        <label>Móvil de contacto</label>
+                        <input type="tel" id="user-phone" placeholder="Ej: 600000000">
+                    </div>
                     <button class="submit-btn" id="btnSave" onclick="saveUserData()">Guardar Cambios</button>
                 </div>
             </div>
@@ -271,7 +273,7 @@
         let selectedUrgency = null;
         let lastRadioChecked = null;
 
-        // LÓGICA DE INSTALACIÓN CORREGIDA
+        // LÓGICA DE INSTALACIÓN (SOLO MÓVIL)
         function checkInstallation() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -282,10 +284,10 @@
                 const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
                 if (isiOS) {
                     banner.style.display = 'flex';
-                    instructions.innerHTML = 'Pulsa <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket"></i> y luego selecciona <strong>"Añadir a pantalla de inicio"</strong>.';
-                } else {
+                    instructions.innerHTML = 'Pulsa <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket"></i> y luego <strong>"Añadir a pantalla de inicio"</strong>.';
+                } else if (/Android/.test(navigator.userAgent)) {
                     banner.style.display = 'flex';
-                    instructions.innerHTML = 'Pulsa los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical"></i> y selecciona <strong>"Agregar a la pantalla de inicio"</strong>.';
+                    instructions.innerHTML = 'Pulsa los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical"></i> y elige <strong>"Instalar aplicación"</strong>.';
                 }
             }
         }
@@ -345,17 +347,17 @@
         async function saveUserData() {
             const address = document.getElementById('user-address').value.trim();
             const phone = document.getElementById('user-phone').value.trim();
-            if(!address || !phone) return showToast("Rellena los campos");
+            if(!address || !phone) return showToast("Rellena todos los campos");
             
             const btn = document.getElementById('btnSave');
-            btn.disabled = true; btn.innerHTML = 'Guardando...';
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
             const { error } = await _supabase.from('perfiles').upsert({ id: currentUser.id, direccion: address, telefono: phone });
 
             if(error) { showToast("Error"); btn.disabled = false; } 
             else {
                 document.getElementById('inc-address').value = address;
                 document.getElementById('inc-phone').value = phone;
-                btn.innerHTML = '¡Listo! ✅'; btn.classList.add('success');
+                btn.innerHTML = '¡Guardado! ✅'; btn.classList.add('success');
                 setTimeout(() => {
                     btn.classList.remove('success'); btn.innerHTML = 'Guardar Cambios'; btn.disabled = false;
                     showPage('/');
@@ -371,7 +373,7 @@
             const title = e.target.title.value.trim();
             const description = e.target.description.value.trim();
 
-            if (!category || !title || !selectedUrgency) return showToast("Faltan datos");
+            if (!category || !title || !selectedUrgency) return showToast("Revisa el formulario");
 
             const btn = document.getElementById('btnSubmit');
             btn.disabled = true; btn.innerHTML = 'Enviando...';
@@ -389,7 +391,7 @@
                 setTimeout(() => {
                     e.target.reset(); selectedUrgency = null;
                     document.querySelectorAll('.priority-btn').forEach(b => b.className = 'priority-btn');
-                    btn.className = 'submit-btn'; btn.innerHTML = 'Enviar Reporte <i class="fa-solid fa-paper-plane"></i>';
+                    btn.className = 'submit-btn'; btn.innerHTML = 'Enviar a Housezen <i class="fa-solid fa-paper-plane"></i>';
                     btn.disabled = false; showPage('/incidencias');
                 }, 1200);
             }
@@ -397,24 +399,24 @@
 
         async function renderIncidents() {
             const container = document.getElementById('incidents-list-container');
-            container.innerHTML = '<p style="text-align:center; padding:50px;"><i class="fa-solid fa-spinner fa-spin"></i></p>';
+            container.innerHTML = '<p style="text-align:center; padding:50px; color:gray;"><i class="fa-solid fa-spinner fa-spin"></i></p>';
             const { data } = await _supabase.from('incidencias').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
 
             if (!data || !data.length) {
-                container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">No hay reportes.</div>';
+                container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">No hay reportes aún.</div>';
                 return;
             }
 
-            container.innerHTML = '<h2 style="margin-bottom:15px; padding-left:5px;">Mis Incidencias</h2>' + data.map(inc => `
+            container.innerHTML = '<h2 style="margin-bottom:15px; padding-left:5px;">Historial</h2>' + data.map(inc => `
                 <div class="incident-item">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
                         <strong style="color:var(--secondary);">${inc.titulo}</strong>
                         <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
                     </div>
                     <p style="font-size:0.85rem; color:var(--text-light);">${inc.descripcion}</p>
                     <div style="font-size:0.7rem; color:var(--text-light); border-top:1px solid #f0f0f0; margin-top:10px; padding-top:10px; display:flex; justify-content:space-between;">
                         <span>${new Date(inc.created_at).toLocaleDateString()}</span>
-                        <span style="color:var(--primary); font-weight:800;">${inc.categoria.toUpperCase()}</span>
+                        <span style="color:var(--primary); font-weight:800;">#${inc.categoria.toUpperCase()}</span>
                     </div>
                 </div>
             `).join('');
@@ -432,10 +434,7 @@
             const nav = document.querySelector(`[data-path="${path}"]`);
             if(nav) nav.classList.add('active');
             if (path === '/incidencias') renderIncidents();
-            if (window.innerWidth < 1000) { 
-                document.getElementById('sidebar').classList.remove('active');
-                document.getElementById('overlay').classList.remove('active');
-            }
+            if (window.innerWidth < 1000) { toggleMenu(); }
             window.scrollTo(0,0);
         }
 
