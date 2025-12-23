@@ -48,12 +48,10 @@
         }
         .modal-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 
-        /* TOP BAR */
         .top-bar { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: var(--surface); display: flex; align-items: center; padding: 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000; }
         .menu-btn { background: none; border: none; cursor: pointer; color: var(--secondary); padding: 8px; margin-right: 15px; border-radius: 8px; }
         .logo-text { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; text-decoration: none; }
 
-        /* SIDEBAR */
         .sidebar-nav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--secondary); color: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1001; padding-top: 20px; }
         .sidebar-nav.active { left: 0; }
         .nav-item { padding: 18px 25px; display: flex; align-items: center; gap: 15px; color: rgba(255,255,255,0.7); cursor: pointer; }
@@ -133,18 +131,25 @@
             <div id="page-/" class="page active">
                 <form id="incidentForm">
                     <div class="card">
-                        <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Tu Ubicación</h2>
-                        <input type="text" id="inc-address" readonly placeholder="Completa tu perfil">
+                        <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Tu Contacto</h2>
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem; color: var(--text-light);">Ubicación configurada:</label>
+                            <input type="text" id="inc-address" readonly placeholder="Completa tu perfil">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.75rem; color: var(--text-light);">Teléfono de contacto:</label>
+                            <input type="text" id="inc-phone" readonly placeholder="Completa tu perfil">
+                        </div>
                     </div>
 
                     <div class="card">
                         <h2><span class="icon"><i class="fa-solid fa-list"></i></span> Categoría</h2>
                         <div class="category-grid">
-                            <label class="cat-option"><input type="radio" name="category" value="Fontanería" required><div class="cat-card"><i class="fa-solid fa-faucet-drip"></i><span>Fontanería</span></div></label>
-                            <label class="cat-option"><input type="radio" name="category" value="Electricidad"><div class="cat-card"><i class="fa-solid fa-bolt"></i><span>Electricidad</span></div></label>
-                            <label class="cat-option"><input type="radio" name="category" value="Electrodomésticos"><div class="cat-card"><i class="fa-solid fa-plug"></i><span>Electrodomés.</span></div></label>
-                            <label class="cat-option"><input type="radio" name="category" value="Cerrajería"><div class="cat-card"><i class="fa-solid fa-key"></i><span>Cerrajería</span></div></label>
-                            <label class="cat-option"><input type="radio" name="category" value="Otros"><div class="cat-card"><i class="fa-solid fa-circle-question"></i><span>Otros</span></div></label>
+                            <label class="cat-option"><input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-faucet-drip"></i><span>Fontanería</span></div></label>
+                            <label class="cat-option"><input type="radio" name="category" value="Electricidad" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-bolt"></i><span>Electricidad</span></div></label>
+                            <label class="cat-option"><input type="radio" name="category" value="Electrodomésticos" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-plug"></i><span>Electrodomés.</span></div></label>
+                            <label class="cat-option"><input type="radio" name="category" value="Cerrajería" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-key"></i><span>Cerrajería</span></div></label>
+                            <label class="cat-option"><input type="radio" name="category" value="Otros" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-circle-question"></i><span>Otros</span></div></label>
                         </div>
                     </div>
 
@@ -198,13 +203,13 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN SUPABASE - TUS CLAVES INTEGRADAS
         const SUPABASE_URL = 'https://rplieisbxvruijvnxbya.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_bwA6-ahysrqAjTYZsgbzVw_PbZ7-BQR';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentUser = null;
         let selectedUrgency = null;
+        let lastRadioChecked = null;
 
         async function login() {
             await _supabase.auth.signInWithOAuth({ 
@@ -232,9 +237,19 @@
                 } else {
                     const data = JSON.parse(saved);
                     document.getElementById('inc-address').value = data.address || '';
+                    document.getElementById('inc-phone').value = data.phone || '';
                     document.getElementById('user-address').value = data.address || '';
                     document.getElementById('user-phone').value = data.phone || '';
                 }
+            }
+        }
+
+        function handleRadioClick(radio) {
+            if (lastRadioChecked === radio) {
+                radio.checked = false;
+                lastRadioChecked = null;
+            } else {
+                lastRadioChecked = radio;
             }
         }
 
@@ -247,6 +262,7 @@
             
             localStorage.setItem(`profile_${currentUser.id}`, JSON.stringify(data));
             document.getElementById('inc-address').value = data.address;
+            document.getElementById('inc-phone').value = data.phone;
             
             const btn = document.getElementById('btnSave');
             btn.innerHTML = '¡Guardado! ✅';
@@ -266,10 +282,12 @@
 
         async function handleSubmit(e) {
             e.preventDefault();
+            const category = e.target.querySelector('input[name="category"]:checked');
+            if (!category) return alert('Por favor, selecciona una categoría');
+            if (!selectedUrgency) return alert('Por favor, selecciona la urgencia');
+
             const btn = document.getElementById('btnSubmit');
             const profile = JSON.parse(localStorage.getItem(`profile_${currentUser.id}`) || '{}');
-
-            if (!selectedUrgency) return alert('Por favor, selecciona la urgencia');
 
             btn.disabled = true;
             btn.innerHTML = 'Enviando... <i class="fa-solid fa-spinner fa-spin"></i>';
@@ -277,7 +295,7 @@
             const { error } = await _supabase.from('incidencias').insert([{
                 titulo: e.target.title.value,
                 descripcion: e.target.description.value,
-                categoria: e.target.category.value,
+                categoria: category.value,
                 urgencia: selectedUrgency,
                 direccion: profile.address || 'Pendiente',
                 telefono: profile.phone || 'Pendiente',
@@ -295,6 +313,7 @@
                 setTimeout(() => {
                     e.target.reset();
                     selectedUrgency = null;
+                    lastRadioChecked = null;
                     document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('selected', 'urgency-baja', 'urgency-media', 'urgency-alta'));
                     btn.classList.remove('success');
                     btn.innerHTML = 'Enviar Reporte <i class="fa-solid fa-paper-plane"></i>';
@@ -354,11 +373,17 @@
 
         document.querySelectorAll('.priority-btn').forEach(btn => {
             btn.onclick = function() {
-                selectedUrgency = this.dataset.level;
-                document.querySelectorAll('.priority-btn').forEach(b => {
-                    b.classList.remove('selected', 'urgency-baja', 'urgency-media', 'urgency-alta');
-                });
-                this.classList.add('selected', `urgency-${selectedUrgency}`);
+                const level = this.dataset.level;
+                if (selectedUrgency === level) {
+                    selectedUrgency = null;
+                    this.classList.remove('selected', `urgency-${level}`);
+                } else {
+                    selectedUrgency = level;
+                    document.querySelectorAll('.priority-btn').forEach(b => {
+                        b.classList.remove('selected', 'urgency-baja', 'urgency-media', 'urgency-alta');
+                    });
+                    this.classList.add('selected', `urgency-${selectedUrgency}`);
+                }
             }
         });
 
