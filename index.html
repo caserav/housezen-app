@@ -139,11 +139,11 @@
                         <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Tu Contacto</h2>
                         <div class="form-group">
                             <label>Ubicación configurada:</label>
-                            <input type="text" id="inc-address" readonly>
+                            <input type="text" id="inc-address" readonly placeholder="Cargando...">
                         </div>
                         <div class="form-group">
                             <label>Teléfono de contacto:</label>
-                            <input type="text" id="inc-phone" readonly>
+                            <input type="text" id="inc-phone" readonly placeholder="Cargando...">
                         </div>
                     </div>
 
@@ -256,15 +256,20 @@
                 document.getElementById('profile-name').value = fullName;
                 document.getElementById('profile-email').value = user.email;
                 
-                const saved = localStorage.getItem(`profile_${user.id}`);
-                if (!saved) {
+                // CARGA DESDE SUPABASE TABLA PERFILES
+                const { data: profile, error } = await _supabase
+                    .from('perfiles')
+                    .select('direccion, telefono')
+                    .eq('id', user.id)
+                    .single();
+
+                if (error || !profile) {
                     document.getElementById('setup-modal').style.display = 'flex';
                 } else {
-                    const data = JSON.parse(saved);
-                    document.getElementById('inc-address').value = data.address || '';
-                    document.getElementById('inc-phone').value = data.phone || '';
-                    document.getElementById('user-address').value = data.address || '';
-                    document.getElementById('user-phone').value = data.phone || '';
+                    document.getElementById('inc-address').value = profile.direccion || '';
+                    document.getElementById('inc-phone').value = profile.telefono || '';
+                    document.getElementById('user-address').value = profile.direccion || '';
+                    document.getElementById('user-phone').value = profile.telefono || '';
                 }
             }
         }
@@ -278,26 +283,43 @@
             }
         }
 
-        function saveUserData() {
-            const data = {
-                address: document.getElementById('user-address').value,
-                phone: document.getElementById('user-phone').value
-            };
-            if(!data.address || !data.phone) return showToast("Por favor, rellena dirección y teléfono");
-            
-            localStorage.setItem(`profile_${currentUser.id}`, JSON.stringify(data));
-            document.getElementById('inc-address').value = data.address;
-            document.getElementById('inc-phone').value = data.phone;
+        async function saveUserData() {
+            const address = document.getElementById('user-address').value.trim();
+            const phone = document.getElementById('user-phone').value.trim();
+
+            if(!address || !phone) return showToast("Por favor, rellena dirección y teléfono");
             
             const btn = document.getElementById('btnSave');
-            btn.innerHTML = '¡Guardado! ✅';
-            btn.classList.add('success');
-            
-            setTimeout(() => {
-                btn.classList.remove('success');
+            btn.disabled = true;
+            btn.innerHTML = 'Guardando... <i class="fa-solid fa-spinner fa-spin"></i>';
+
+            // GUARDAR EN SUPABASE
+            const { error } = await _supabase
+                .from('perfiles')
+                .upsert({ 
+                    id: currentUser.id, 
+                    direccion: address, 
+                    telefono: phone 
+                });
+
+            if(error) {
+                showToast("Error: " + error.message);
+                btn.disabled = false;
                 btn.innerHTML = 'Guardar Datos';
-                showPage('/');
-            }, 1000);
+            } else {
+                document.getElementById('inc-address').value = address;
+                document.getElementById('inc-phone').value = phone;
+                
+                btn.innerHTML = '¡Guardado! ✅';
+                btn.classList.add('success');
+                
+                setTimeout(() => {
+                    btn.classList.remove('success');
+                    btn.innerHTML = 'Guardar Datos';
+                    btn.disabled = false;
+                    showPage('/');
+                }, 1000);
+            }
         }
 
         function goToProfile() {
@@ -317,7 +339,12 @@
             if (!selectedUrgency) return showToast("Selecciona la urgencia");
 
             const btn = document.getElementById('btnSubmit');
-            const profile = JSON.parse(localStorage.getItem(`profile_${currentUser.id}`) || '{}');
+            
+            // Usar los valores que ya están cargados en los inputs readonly
+            const currentAddress = document.getElementById('inc-address').value;
+            const currentPhone = document.getElementById('inc-phone').value;
+
+            if(!currentAddress || !currentPhone) return showToast("Faltan tus datos de contacto");
 
             btn.disabled = true;
             btn.innerHTML = 'Enviando... <i class="fa-solid fa-spinner fa-spin"></i>';
@@ -327,8 +354,8 @@
                 descripcion: description,
                 categoria: category.value,
                 urgencia: selectedUrgency,
-                direccion: profile.address || 'No definida',
-                telefono: profile.phone || 'No definido',
+                direccion: currentAddress,
+                telefono: currentPhone,
                 user_id: currentUser.id,
                 nombre_inquilino: currentUser.user_metadata.full_name,
                 email_inquilino: currentUser.email
