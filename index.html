@@ -6,7 +6,6 @@
     <title>Housezen App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -26,357 +25,345 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
 
+        /* PANTALLA DE LOGIN */
+        #login-page { 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; text-align: center; padding: 20px; background: white;
+        }
+        .google-btn {
+            background: white; color: var(--text-main); padding: 15px 25px; border: 2px solid var(--border);
+            border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 12px;
+            box-shadow: var(--shadow); transition: 0.3s;
+        }
+        .google-btn:hover { border-color: var(--primary); background: #f9f9f9; }
+
+        /* APP CONTENT */
+        #app-content { display: none; }
+
+        /* MODAL DE DATOS FALTANTES */
+        #setup-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.6); z-index: 2000; display: none;
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+
+        /* TOP BAR */
         .top-bar { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: var(--surface); display: flex; align-items: center; padding: 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000; }
         .menu-btn { background: none; border: none; cursor: pointer; color: var(--secondary); padding: 8px; margin-right: 15px; border-radius: 8px; }
         .logo-text { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; text-decoration: none; }
 
-        .sidebar-nav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--secondary); color: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1001; padding-top: 20px; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+        /* SIDEBAR */
+        .sidebar-nav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--secondary); color: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1001; padding-top: 20px; }
         .sidebar-nav.active { left: 0; }
-        .nav-item { padding: 18px 25px; display: flex; align-items: center; gap: 15px; color: rgba(255,255,255,0.7); cursor: pointer; transition: 0.2s; }
-        .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--primary); padding-left: 21px; }
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 1000; }
-        .menu-overlay.active { display: block; }
+        .nav-item { padding: 18px 25px; display: flex; align-items: center; gap: 15px; color: rgba(255,255,255,0.7); cursor: pointer; }
+        .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--primary); }
 
         .page { display: none; padding: 80px 20px 40px; max-width: 1000px; margin: 0 auto; animation: fadeIn 0.4s ease; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .card { background: var(--surface); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
-        h2 { font-size: 0.9rem; color: var(--secondary); margin-bottom: 18px; display: flex; align-items: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        h2 .icon { margin-right: 10px; color: var(--primary); background: #E0F2F1; padding: 8px; border-radius: 8px; font-size: 0.8rem; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px;}
+        h2 { font-size: 0.9rem; color: var(--secondary); margin-bottom: 18px; display: flex; align-items: center; font-weight: 700; text-transform: uppercase; }
+        h2 .icon { margin-right: 10px; color: var(--primary); background: #E0F2F1; padding: 8px; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
 
         .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 6px; font-weight: 600; }
-        input, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; background: #FAFAFA; transition: 0.3s; }
-        input:focus, textarea:focus { border-color: var(--primary); outline: none; background: #fff; }
-        input[readonly] { background: #f8f9f9; border-style: dashed; color: var(--text-light); cursor: default; }
+        input, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; background: #FAFAFA; }
+        
+        .submit-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.4s; gap: 10px; }
+        .submit-btn.success { background: #4CAF50 !important; transform: scale(1.02); }
 
-        .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
         .cat-option input { display: none; }
-        .cat-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 15px 5px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; background: white; transition: 0.2s; height: 100%; }
+        .cat-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; background: white; }
         .cat-option input:checked + .cat-card { border-color: var(--primary); background: #E0F2F1; color: var(--primary-dark); }
 
-        .priority-btn { flex: 1; padding: 10px; border-radius: 10px; border: 2px solid var(--border); background: #fff; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-align: center; transition: 0.2s; }
-        .priority-btn.selected.urgency-baja { background-color: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
-        .priority-btn.selected.urgency-media { background-color: #fffde7; border-color: #ffeb3b; color: #f9a825; }
-        .priority-btn.selected.urgency-alta { background-color: #ffebee; border-color: #f44336; color: #c62828; }
+        .priority-btn { flex: 1; padding: 10px; border-radius: 10px; border: 2px solid var(--border); background: #fff; text-align: center; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
+        .priority-btn.selected.urgency-baja { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
+        .priority-btn.selected.urgency-media { background: #fffde7; border-color: #ffeb3b; color: #f9a825; }
+        .priority-btn.selected.urgency-alta { background: #ffebee; border-color: #f44336; color: #c62828; }
 
-        .submit-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 15px rgba(42, 157, 143, 0.3); font-size: 1rem; gap: 12px; }
-        .btn-save { width: 100%; padding: 15px; background: var(--secondary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .btn-save.success { background: #4CAF50 !important; }
-
-        .incidents-list { display: flex; flex-direction: column; gap: 15px; }
-        .incident-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
-        .incident-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .incident-title { font-weight: 700; color: var(--secondary); }
-        .incident-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-light); border-top: 1px solid var(--border); padding-top: 12px; margin-top: 10px;}
-
-        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; color: #fff; text-transform: uppercase;}
-        .status-Enviada { background-color: #3498db; }
-        .status-Proceso { background-color: #f1c40f; }
-        .status-Resuelta { background-color: #2ecc71; }
-
-        .urgency-badge { padding: 3px 7px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; text-transform: capitalize; }
-        .urgency-baja { background: #e3f2fd; color: #1565c0; }
-        .urgency-media { background: #fff3e0; color: #ef6c00; }
-        .urgency-alta { background: #ffebee; color: #c62828; }
+        .incident-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; color: white; text-transform: uppercase; margin-right: 8px; }
+        .status-Enviada { background: #3498db; }
+        .status-Proceso { background: #f1c40f; }
+        .status-Resuelta { background: #2ecc71; }
+        
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); display: none; z-index: 1000; }
+        .menu-overlay.active { display: block; }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <button class="menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars fa-lg"></i></button>
-        <a href="#" class="logo-text" onclick="showPage('/')"><i class="fa-solid fa-house-chimney"></i> Housezen</a>
+    <div id="login-page">
+        <h1 style="color: var(--primary); font-weight: 800; margin-bottom: 10px;"><i class="fa-solid fa-house-chimney"></i> Housezen</h1>
+        <p style="color: var(--text-light); margin-bottom: 30px;">Identifícate con Google para continuar</p>
+        <button class="google-btn" onclick="login()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+            Entrar con Google
+        </button>
     </div>
 
-    <div class="menu-overlay" id="overlay" onclick="toggleMenu()"></div>
-    
-    <nav class="sidebar-nav" id="sidebar">
-        <div style="padding: 25px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1);">Mi Perfil</div>
-        <div class="nav-item active" data-path="/" onclick="showPage('/')"><i class="fa-solid fa-circle-plus"></i> Nueva incidencia</div>
-        <div class="nav-item" data-path="/incidencias" onclick="showPage('/incidencias')"><i class="fa-solid fa-list-check"></i> Seguir incidencias</div>
-        <div class="nav-item" data-path="/profile" onclick="showPage('/profile')"><i class="fa-solid fa-user-gear"></i> Datos de contacto</div>
-    </nav>
+    <div id="setup-modal">
+        <div class="modal-card">
+            <i class="fa-solid fa-user-pen" style="font-size: 3rem; color: var(--primary); margin-bottom: 20px;"></i>
+            <h3>¡Faltan tus datos!</h3>
+            <p style="color: var(--text-light); margin: 15px 0;">Para poder gestionar incidencias, primero rellena tu dirección y teléfono.</p>
+            <button class="submit-btn" onclick="goToProfile()">Ir a Datos de contacto</button>
+        </div>
+    </div>
 
-    <main>
-        <div id="page-/" class="page active">
-            <form id="incidentForm">
-                <div class="card">
-                    <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> DATOS PERSONALES</h2>
-                    <div class="form-group">
-                        <input type="text" id="inc-address" readonly placeholder="Completa tus datos en el menú lateral">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <input type="text" id="inc-phone" readonly placeholder="Teléfono no configurado">
-                    </div>
-                </div>
+    <div id="app-content">
+        <div class="top-bar">
+            <button class="menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars fa-lg"></i></button>
+            <a href="#" class="logo-text"><i class="fa-solid fa-house-chimney"></i> Housezen</a>
+        </div>
 
-                <div class="card">
-                    <h2><span class="icon"><i class="fa-solid fa-list"></i></span> Categoría de la avería</h2>
-                    <div class="category-grid">
-                        <label class="cat-option"><input type="radio" name="category" value="Fontanería" required><div class="cat-card"><i class="fa-solid fa-faucet-drip"></i><span>Fontanería</span></div></label>
-                        <label class="cat-option"><input type="radio" name="category" value="Electricidad"><div class="cat-card"><i class="fa-solid fa-bolt"></i><span>Electricidad</span></div></label>
-                        <label class="cat-option"><input type="radio" name="category" value="Electrodomésticos"><div class="cat-card"><i class="fa-solid fa-plug"></i><span>Electrodomés.</span></div></label>
-                        <label class="cat-option"><input type="radio" name="category" value="Cerrajería"><div class="cat-card"><i class="fa-solid fa-key"></i><span>Cerrajería</span></div></label>
-                        <label class="cat-option"><input type="radio" name="category" value="Muebles"><div class="cat-card"><i class="fa-solid fa-couch"></i><span>Muebles</span></div></label>
-                        <label class="cat-option"><input type="radio" name="category" value="Otros"><div class="cat-card"><i class="fa-solid fa-circle-question"></i><span>Otros</span></div></label>
-                    </div>
-                </div>
+        <div class="menu-overlay" id="overlay" onclick="toggleMenu()"></div>
+        
+        <nav class="sidebar-nav" id="sidebar">
+            <div style="padding: 25px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1);">Hola, <span id="user-name">...</span></div>
+            <div class="nav-item active" data-path="/" onclick="showPage('/')"><i class="fa-solid fa-circle-plus"></i> Nueva incidencia</div>
+            <div class="nav-item" data-path="/incidencias" onclick="showPage('/incidencias')"><i class="fa-solid fa-list-check"></i> Seguir incidencias</div>
+            <div class="nav-item" data-path="/profile" onclick="showPage('/profile')"><i class="fa-solid fa-user-gear"></i> Datos de contacto</div>
+            <div class="nav-item" onclick="logout()" style="margin-top: 20px; color: #ff7675;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</div>
+        </nav>
 
-                <div class="card">
-                    <h2><span class="icon"><i class="fa-solid fa-pen-to-square"></i></span> Detalles del reporte</h2>
-                    <div class="form-group">
-                        <label>Título del problema</label>
-                        <input type="text" name="title" placeholder="Ej: El termo no calienta" required>
+        <main>
+            <div id="page-/" class="page active">
+                <form id="incidentForm">
+                    <div class="card">
+                        <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Tu Ubicación</h2>
+                        <input type="text" id="inc-address" readonly placeholder="Completa tu perfil">
                     </div>
-                    <div class="form-group">
-                        <label>Descripción</label>
-                        <textarea name="description" rows="3" placeholder="Describe brevemente qué sucede..." required></textarea>
+
+                    <div class="card">
+                        <h2><span class="icon"><i class="fa-solid fa-list"></i></span> Categoría</h2>
+                        <div class="category-grid">
+                            <label class="cat-option"><input type="radio" name="category" value="Fontanería" required><div class="cat-card"><i class="fa-solid fa-faucet-drip"></i><span>Fontanería</span></div></label>
+                            <label class="cat-option"><input type="radio" name="category" value="Electricidad"><div class="cat-card"><i class="fa-solid fa-bolt"></i><span>Electricidad</span></div></label>
+                            <label class="cat-option"><input type="radio" name="category" value="Electrodomésticos"><div class="cat-card"><i class="fa-solid fa-plug"></i><span>Electrodomés.</span></div></label>
+                            <label class="cat-option"><input type="radio" name="category" value="Cerrajería"><div class="cat-card"><i class="fa-solid fa-key"></i><span>Cerrajería</span></div></label>
+                            <label class="cat-option"><input type="radio" name="category" value="Otros"><div class="cat-card"><i class="fa-solid fa-circle-question"></i><span>Otros</span></div></label>
+                        </div>
                     </div>
-                    <div style="margin-top:15px;">
+
+                    <div class="card">
+                        <h2><span class="icon"><i class="fa-solid fa-pen-to-square"></i></span> Detalles</h2>
+                        <div class="form-group">
+                            <label>Título de la avería</label>
+                            <input type="text" name="title" placeholder="Ej: El grifo gotea" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <textarea name="description" rows="3" placeholder="Explica qué sucede..." required></textarea>
+                        </div>
                         <label>Urgencia</label>
-                        <div style="display:flex; gap:10px;">
+                        <div style="display:flex; gap:10px; margin-top:10px;">
                             <div class="priority-btn" data-level="baja">Baja</div>
                             <div class="priority-btn" data-level="media">Media</div>
                             <div class="priority-btn" data-level="alta">Alta</div>
                         </div>
                         <input type="hidden" id="urgencyInput" name="urgency" value="">
                     </div>
-                </div>
 
-                <button type="submit" class="submit-btn" id="btnSubmit">
-                    Enviar Reporte <i class="fa-solid fa-paper-plane icon"></i>
-                </button>
-            </form>
-        </div>
-        
-        <div id="page-/incidencias" class="page">
-             <div class="card">
-                <h2><span class="icon"><i class="fa-solid fa-list-check"></i></span> Mis Incidencias</h2>
-                <div id="incidents-list-container" class="incidents-list">
-                    <p style="text-align: center; color: var(--text-light); padding: 40px 0;">Cargando...</p>
+                    <button type="submit" class="submit-btn" id="btnSubmit">
+                        Enviar Reporte <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div id="page-/incidencias" class="page">
+                <div class="card">
+                    <h2><span class="icon"><i class="fa-solid fa-list-check"></i></span> Historial</h2>
+                    <div id="incidents-list-container"></div>
                 </div>
             </div>
-        </div>
 
-        <div id="page-/profile" class="page">
-            <div class="card" style="max-width: 500px; margin: 0 auto;">
-                <h2><span class="icon"><i class="fa-solid fa-user-gear"></i></span> Datos de Contacto</h2>
-                <div class="form-group">
-                    <label>Dirección de la vivienda</label>
-                    <input type="text" id="user-address" placeholder="Ej: Calle Principal 123, 2B">
+            <div id="page-/profile" class="page">
+                <div class="card">
+                    <h2><span class="icon"><i class="fa-solid fa-user-gear"></i></span> Mis Datos</h2>
+                    <div class="form-group">
+                        <label>Dirección completa</label>
+                        <input type="text" id="user-address" placeholder="Ej: Calle Real 10, 2B">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono de contacto</label>
+                        <input type="tel" id="user-phone" placeholder="Ej: 600112233">
+                    </div>
+                    <button class="submit-btn" id="btnSave" onclick="saveUserData()">Guardar Datos</button>
                 </div>
-                <div class="form-group">
-                    <label>Teléfono de contacto</label>
-                    <input type="tel" id="user-phone" placeholder="Ej: 600000000">
-                </div>
-                <div class="form-group">
-                    <label>ID / Referencia de contrato</label>
-                    <input type="text" id="user-ref" placeholder="Ej: HZ-2024-01">
-                </div>
-                <button class="btn-save" id="btnSave">Guardar Configuración</button>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
-        // CONFIGURACIÓN SUPABASE
+        // CONFIGURACIÓN SUPABASE - TUS CLAVES INTEGRADAS
         const SUPABASE_URL = 'https://rplieisbxvruijvnxbya.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_bwA6-ahysrqAjTYZsgbzVw_PbZ7-BQR';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let selectedCategory = null;
+        let currentUser = null;
         let selectedUrgency = null;
-        let userData = {};
 
-        // DOM ELEMENTS
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const incidentForm = document.getElementById('incidentForm');
-        const urgencyInput = document.getElementById('urgencyInput');
-        const priorityButtons = document.querySelectorAll('.priority-btn');
-
-        function toggleMenu() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
+        async function login() {
+            await _supabase.auth.signInWithOAuth({ 
+                provider: 'google',
+                options: { redirectTo: window.location.href }
+            });
         }
 
-        function showPage(path) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const targetPage = document.getElementById(`page-${path}`);
-            if(targetPage) targetPage.classList.add('active');
+        async function logout() {
+            await _supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        async function checkUser() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (user) {
+                currentUser = user;
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('app-content').style.display = 'block';
+                document.getElementById('user-name').innerText = user.user_metadata.full_name.split(' ')[0];
+                
+                const saved = localStorage.getItem(`profile_${user.id}`);
+                if (!saved) {
+                    document.getElementById('setup-modal').style.display = 'flex';
+                } else {
+                    const data = JSON.parse(saved);
+                    document.getElementById('inc-address').value = data.address || '';
+                    document.getElementById('user-address').value = data.address || '';
+                    document.getElementById('user-phone').value = data.phone || '';
+                }
+            }
+        }
+
+        function saveUserData() {
+            const data = {
+                address: document.getElementById('user-address').value,
+                phone: document.getElementById('user-phone').value
+            };
+            if(!data.address || !data.phone) return alert("Rellena ambos campos para continuar");
             
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const navItem = document.querySelector(`.nav-item[data-path="${path}"]`);
-            if(navItem) navItem.classList.add('active');
-
-            if (window.innerWidth < 1000 && sidebar.classList.contains('active')) toggleMenu();
-
-            loadUserData(); // Aseguramos carga de datos antes de cualquier acción
-            if (path === '/') loadUserDataIntoForm();
-            if (path === '/profile') loadUserDataIntoProfile();
-            if (path === '/incidencias') renderIncidents();
+            localStorage.setItem(`profile_${currentUser.id}`, JSON.stringify(data));
+            document.getElementById('inc-address').value = data.address;
+            
+            const btn = document.getElementById('btnSave');
+            btn.innerHTML = '¡Guardado! ✅';
+            btn.classList.add('success');
+            
+            setTimeout(() => {
+                btn.classList.remove('success');
+                btn.innerHTML = 'Guardar Datos';
+                showPage('/');
+            }, 1000);
         }
 
-        // LÓGICA BOTONES URGENCIA
-        priorityButtons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                const level = this.getAttribute('data-level');
-                selectedUrgency = (selectedUrgency === level) ? null : level;
-                updateUrgencyButtons();
-            });
-        });
-
-        function updateUrgencyButtons() {
-            priorityButtons.forEach(btn => {
-                const level = btn.getAttribute('data-level');
-                btn.classList.toggle('selected', level === selectedUrgency);
-                btn.classList.toggle(`urgency-${level}`, level === selectedUrgency);
-            });
-            urgencyInput.value = selectedUrgency || '';
+        function goToProfile() {
+            document.getElementById('setup-modal').style.display = 'none';
+            showPage('/profile');
         }
 
-        // CATEGORIAS
-        document.querySelectorAll('input[name="category"]').forEach(radio => {
-            radio.addEventListener('click', function() {
-                selectedCategory = (selectedCategory === this.value) ? null : this.value;
-                if (!selectedCategory) this.checked = false;
-            });
-        });
-
-        // ENVIAR A SUPABASE
         async function handleSubmit(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
+            const profile = JSON.parse(localStorage.getItem(`profile_${currentUser.id}`) || '{}');
 
-            loadUserData(); // Re-cargar datos para asegurar que tenemos el teléfono
-
-            if (!selectedCategory || !selectedUrgency) {
-                alert('Selecciona categoría y urgencia');
-                return;
-            }
+            if (!selectedUrgency) return alert('Por favor, selecciona la urgencia');
 
             btn.disabled = true;
             btn.innerHTML = 'Enviando... <i class="fa-solid fa-spinner fa-spin"></i>';
 
-            const { error } = await _supabase
-                .from('incidencias')
-                .insert([{
-                    titulo: e.target.title.value,
-                    descripcion: e.target.description.value,
-                    categoria: selectedCategory,
-                    urgencia: selectedUrgency,
-                    direccion: userData.address || 'Sin dirección',
-                    telefono: (userData.phone || 'Sin teléfono').toString().trim(),
-                    referencia: userData.ref || 'Sin ref'
-                }]);
+            const { error } = await _supabase.from('incidencias').insert([{
+                titulo: e.target.title.value,
+                descripcion: e.target.description.value,
+                categoria: e.target.category.value,
+                urgencia: selectedUrgency,
+                direccion: profile.address || 'Pendiente',
+                telefono: profile.phone || 'Pendiente',
+                user_id: currentUser.id 
+            }]);
 
             if (error) {
                 alert('Error al enviar: ' + error.message);
+                btn.disabled = false;
+                btn.innerHTML = 'Enviar Reporte <i class="fa-solid fa-paper-plane"></i>';
             } else {
-                alert('¡Incidencia enviada correctamente!');
-                e.target.reset();
-                selectedCategory = null;
-                selectedUrgency = null;
-                updateUrgencyButtons();
-                showPage('/incidencias');
+                btn.innerHTML = '¡Enviada con éxito! ✅';
+                btn.classList.add('success');
+                
+                setTimeout(() => {
+                    e.target.reset();
+                    selectedUrgency = null;
+                    document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('selected', 'urgency-baja', 'urgency-media', 'urgency-alta'));
+                    btn.classList.remove('success');
+                    btn.innerHTML = 'Enviar Reporte <i class="fa-solid fa-paper-plane"></i>';
+                    btn.disabled = false;
+                    showPage('/incidencias');
+                }, 1200);
             }
-            btn.disabled = false;
-            btn.innerHTML = 'Enviar Reporte <i class="fa-solid fa-paper-plane icon"></i>';
         }
 
-        // LEER DE SUPABASE (CON FILTRO ROBUSTO)
         async function renderIncidents() {
             const container = document.getElementById('incidents-list-container');
-            container.innerHTML = '<p style="text-align: center; padding: 20px;">Actualizando lista...</p>';
-
-            // Forzar lectura de memoria local
-            const saved = localStorage.getItem('hz_v4_config');
-            const currentData = saved ? JSON.parse(saved) : {};
-            const searchPhone = currentData.phone ? currentData.phone.toString().trim() : '---';
+            container.innerHTML = '<p style="text-align:center; padding:20px;">Cargando...</p>';
 
             const { data, error } = await _supabase
                 .from('incidencias')
                 .select('*')
-                .eq('telefono', searchPhone)
+                .eq('user_id', currentUser.id)
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                container.innerHTML = `<p style="color:red; text-align:center;">Error de conexión: ${error.message}</p>`;
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; color: var(--text-light); padding: 40px 10px;">
-                        <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 15px; opacity: 0.3;"></i>
-                        <p>No hay registros para: <b>${searchPhone}</b></p>
-                        <p style="font-size: 0.75rem; margin-top: 10px;">Asegúrate de que este número coincida con el que usaste para enviar el reporte.</p>
-                    </div>`;
+            if (error || !data.length) {
+                container.innerHTML = '<p style="text-align:center; color:gray; padding:40px;">No tienes incidencias registradas.</p>';
                 return;
             }
 
             container.innerHTML = data.map(inc => `
                 <div class="incident-item">
-                    <div class="incident-header">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <strong style="color:var(--secondary)">${inc.titulo}</strong>
                         <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
-                        <strong class="incident-title">${inc.titulo}</strong>
                     </div>
-                    <p style="font-size:0.9rem; color:var(--text-light)">${inc.descripcion}</p>
-                    <div class="incident-footer">
+                    <p style="font-size:0.85rem; color:var(--text-light); margin-bottom:10px;">${inc.descripcion}</p>
+                    <div style="font-size:0.7rem; color:var(--text-light); border-top:1px solid #eee; padding-top:8px; display:flex; justify-content:space-between;">
                         <span>${new Date(inc.created_at).toLocaleDateString()}</span>
-                        <span class="urgency-badge urgency-${inc.urgencia}">${inc.urgencia}</span>
+                        <span style="font-weight:700; color:var(--primary)">${inc.urgencia.toUpperCase()}</span>
                     </div>
                 </div>
             `).join('');
         }
 
-        // PERFIL LOCAL
-        function saveUserData() {
-            const btn = document.getElementById('btnSave');
-            const phoneVal = document.getElementById('user-phone').value;
-            
-            userData = {
-                address: document.getElementById('user-address').value,
-                phone: phoneVal ? phoneVal.toString().trim() : '',
-                ref: document.getElementById('user-ref').value
-            };
-            
-            localStorage.setItem('hz_v4_config', JSON.stringify(userData));
-            
-            btn.classList.add('success');
-            btn.innerHTML = '¡Guardado!';
-            setTimeout(() => {
-                btn.classList.remove('success');
-                btn.innerHTML = 'Guardar Configuración';
-                showPage('/');
-            }, 800);
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
         }
 
-        function loadUserData() {
-            const saved = localStorage.getItem('hz_v4_config');
-            userData = saved ? JSON.parse(saved) : {};
+        function showPage(path) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${path}`).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            const nav = document.querySelector(`[data-path="${path}"]`);
+            if(nav) nav.classList.add('active');
+            if (path === '/incidencias') renderIncidents();
+            if (window.innerWidth < 1000) {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('overlay').classList.remove('active');
+            }
         }
 
-        function loadUserDataIntoForm() {
-            document.getElementById('inc-address').value = userData.address ? `Vivienda: ${userData.address}` : '';
-            document.getElementById('inc-phone').value = userData.phone ? `Contacto: ${userData.phone}` : '';
-        }
-
-        function loadUserDataIntoProfile() {
-            document.getElementById('user-address').value = userData.address || '';
-            document.getElementById('user-phone').value = userData.phone || '';
-            document.getElementById('user-ref').value = userData.ref || '';
-        }
-
-        // INICIO
-        window.addEventListener('load', () => {
-            loadUserData();
-            showPage('/');
+        document.querySelectorAll('.priority-btn').forEach(btn => {
+            btn.onclick = function() {
+                selectedUrgency = this.dataset.level;
+                document.querySelectorAll('.priority-btn').forEach(b => {
+                    b.classList.remove('selected', 'urgency-baja', 'urgency-media', 'urgency-alta');
+                });
+                this.classList.add('selected', `urgency-${selectedUrgency}`);
+            }
         });
-        
-        incidentForm.addEventListener('submit', handleSubmit);
-        document.getElementById('btnSave').addEventListener('click', saveUserData);
+
+        document.getElementById('incidentForm').onsubmit = handleSubmit;
+        window.onload = checkUser;
     </script>
 </body>
 </html>
