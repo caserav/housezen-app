@@ -25,30 +25,30 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
 
-        #login-page { 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            height: 100vh; text-align: center; padding: 20px; background: white;
+        /* TOAST NOTIFICATION */
+        #toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #333; color: white; padding: 12px 25px; border-radius: 50px;
+            font-size: 0.9rem; font-weight: 600; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px;
         }
-        .google-btn {
-            background: white; color: var(--text-main); padding: 15px 25px; border: 2px solid var(--border);
-            border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 12px;
-            box-shadow: var(--shadow); transition: 0.3s;
-        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* PANTALLA DE LOGIN */
+        #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; background: white; }
+        .google-btn { background: white; color: var(--text-main); padding: 15px 25px; border: 2px solid var(--border); border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); transition: 0.3s; }
 
         #app-content { display: none; }
 
-        #setup-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.6); z-index: 2000; display: none;
-            align-items: center; justify-content: center; padding: 20px;
-        }
+        /* MODAL */
+        #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
 
         .top-bar { position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: var(--surface); display: flex; align-items: center; padding: 0 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000; }
         .menu-btn { background: none; border: none; cursor: pointer; color: var(--secondary); padding: 8px; margin-right: 15px; border-radius: 8px; }
         .logo-text { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; text-decoration: none; }
 
-        .sidebar-nav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--secondary); color: white; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1001; padding-top: 20px; }
+        .sidebar-nav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--secondary); color: white; transition: 0.3s; z-index: 1001; padding-top: 20px; }
         .sidebar-nav.active { left: 0; }
         .nav-item { padding: 18px 25px; display: flex; align-items: center; gap: 15px; color: rgba(255,255,255,0.7); cursor: pointer; }
         .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--primary); }
@@ -62,23 +62,26 @@
         h2 .icon { margin-right: 10px; color: var(--primary); background: #E0F2F1; padding: 8px; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
 
         .form-group { margin-bottom: 16px; }
-        input, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; background: #FAFAFA; }
-        
+        label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
+        input, textarea { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; background: #FAFAFA; transition: 0.3s; }
+        input:focus { border-color: var(--primary); outline: none; background: white; }
+        input[readonly] { background: #f0f0f0; color: #888; cursor: not-allowed; }
+
         .submit-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.4s; gap: 10px; }
-        .submit-btn.success { background: #4CAF50 !important; transform: scale(1.02); }
+        .submit-btn.success { background: #4CAF50 !important; }
 
         .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
         .cat-option input { display: none; }
-        .cat-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; background: white; }
-        .cat-option input:checked + .cat-card { border-color: var(--primary); background: #E0F2F1; color: var(--primary-dark); }
+        .cat-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; background: white; transition: 0.2s; }
+        .cat-option input:checked + .cat-card { border-color: var(--primary); background: #E0F2F1; color: var(--primary-dark); transform: translateY(-2px); }
 
         .priority-btn { flex: 1; padding: 10px; border-radius: 10px; border: 2px solid var(--border); background: #fff; text-align: center; cursor: pointer; font-weight: 600; font-size: 0.8rem; }
         .priority-btn.selected.urgency-baja { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
         .priority-btn.selected.urgency-media { background: #fffde7; border-color: #ffeb3b; color: #f9a825; }
         .priority-btn.selected.urgency-alta { background: #ffebee; border-color: #f44336; color: #c62828; }
 
-        .incident-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
-        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; color: white; text-transform: uppercase; margin-right: 8px; }
+        .incident-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 15px; }
+        .status-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: 700; color: white; text-transform: uppercase; }
         .status-Enviada { background: #3498db; }
         .status-Proceso { background: #f1c40f; }
         .status-Resuelta { background: #2ecc71; }
@@ -88,6 +91,8 @@
     </style>
 </head>
 <body>
+
+    <div id="toast"><i class="fa-solid fa-circle-info"></i> <span id="toast-text"></span></div>
 
     <div id="login-page">
         <h1 style="color: var(--primary); font-weight: 800; margin-bottom: 10px;"><i class="fa-solid fa-house-chimney"></i> Housezen</h1>
@@ -126,19 +131,19 @@
         <main>
             <div id="page-/" class="page active">
                 <div style="margin-bottom: 15px; font-size: 0.8rem; color: var(--text-light); padding: 0 5px;">
-                    <i class="fa-solid fa-user-check"></i> Reportando como: <strong id="info-name">...</strong> (<span id="info-email">...</span>)
+                    <i class="fa-solid fa-user-check" style="color: var(--primary);"></i> Reportando como: <strong id="info-name">...</strong> (<span id="info-email">...</span>)
                 </div>
 
                 <form id="incidentForm">
                     <div class="card">
                         <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Tu Contacto</h2>
                         <div class="form-group">
-                            <label style="font-size: 0.75rem; color: var(--text-light);">Ubicación configurada:</label>
-                            <input type="text" id="inc-address" readonly placeholder="Completa tu perfil">
+                            <label>Ubicación configurada:</label>
+                            <input type="text" id="inc-address" readonly>
                         </div>
                         <div class="form-group">
-                            <label style="font-size: 0.75rem; color: var(--text-light);">Teléfono de contacto:</label>
-                            <input type="text" id="inc-phone" readonly placeholder="Completa tu perfil">
+                            <label>Teléfono de contacto:</label>
+                            <input type="text" id="inc-phone" readonly>
                         </div>
                     </div>
 
@@ -157,11 +162,11 @@
                         <h2><span class="icon"><i class="fa-solid fa-pen-to-square"></i></span> Detalles</h2>
                         <div class="form-group">
                             <label>Título de la avería</label>
-                            <input type="text" name="title" placeholder="Ej: El grifo gotea" required>
+                            <input type="text" name="title" placeholder="Ej: El grifo gotea">
                         </div>
                         <div class="form-group">
                             <label>Descripción</label>
-                            <textarea name="description" rows="3" placeholder="Explica qué sucede..." required></textarea>
+                            <textarea name="description" rows="3" placeholder="Explica qué sucede..."></textarea>
                         </div>
                         <label>Urgencia</label>
                         <div style="display:flex; gap:10px; margin-top:10px;">
@@ -169,7 +174,6 @@
                             <div class="priority-btn" data-level="media">Media</div>
                             <div class="priority-btn" data-level="alta">Alta</div>
                         </div>
-                        <input type="hidden" id="urgencyInput" name="urgency" value="">
                     </div>
 
                     <button type="submit" class="submit-btn" id="btnSubmit">
@@ -188,6 +192,14 @@
             <div id="page-/profile" class="page">
                 <div class="card">
                     <h2><span class="icon"><i class="fa-solid fa-user-gear"></i></span> Mis Datos</h2>
+                    <div class="form-group">
+                        <label>Nombre (de Google)</label>
+                        <input type="text" id="profile-name" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Email (de Google)</label>
+                        <input type="text" id="profile-email" readonly>
+                    </div>
                     <div class="form-group">
                         <label>Dirección completa</label>
                         <input type="text" id="user-address" placeholder="Ej: Calle Real 10, 2B">
@@ -211,6 +223,13 @@
         let selectedUrgency = null;
         let lastRadioChecked = null;
 
+        function showToast(text) {
+            const t = document.getElementById('toast');
+            document.getElementById('toast-text').innerText = text;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
         async function login() {
             await _supabase.auth.signInWithOAuth({ 
                 provider: 'google',
@@ -230,11 +249,12 @@
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('app-content').style.display = 'block';
                 
-                // Mostrar datos de Google
                 const fullName = user.user_metadata.full_name || "Usuario";
                 document.getElementById('user-name').innerText = fullName.split(' ')[0];
                 document.getElementById('info-name').innerText = fullName;
                 document.getElementById('info-email').innerText = user.email;
+                document.getElementById('profile-name').value = fullName;
+                document.getElementById('profile-email').value = user.email;
                 
                 const saved = localStorage.getItem(`profile_${user.id}`);
                 if (!saved) {
@@ -263,7 +283,7 @@
                 address: document.getElementById('user-address').value,
                 phone: document.getElementById('user-phone').value
             };
-            if(!data.address || !data.phone) return alert("Rellena ambos campos para continuar");
+            if(!data.address || !data.phone) return showToast("Por favor, rellena dirección y teléfono");
             
             localStorage.setItem(`profile_${currentUser.id}`, JSON.stringify(data));
             document.getElementById('inc-address').value = data.address;
@@ -288,8 +308,13 @@
         async function handleSubmit(e) {
             e.preventDefault();
             const category = e.target.querySelector('input[name="category"]:checked');
-            if (!category) return alert('Por favor, selecciona una categoría');
-            if (!selectedUrgency) return alert('Por favor, selecciona la urgencia');
+            const title = e.target.title.value.trim();
+            const description = e.target.description.value.trim();
+
+            if (!category) return showToast("Selecciona una categoría");
+            if (!title) return showToast("Escribe un título");
+            if (!description) return showToast("Escribe una descripción");
+            if (!selectedUrgency) return showToast("Selecciona la urgencia");
 
             const btn = document.getElementById('btnSubmit');
             const profile = JSON.parse(localStorage.getItem(`profile_${currentUser.id}`) || '{}');
@@ -297,27 +322,25 @@
             btn.disabled = true;
             btn.innerHTML = 'Enviando... <i class="fa-solid fa-spinner fa-spin"></i>';
 
-            // Insertamos incluyendo nombre y email de Google
             const { error } = await _supabase.from('incidencias').insert([{
-                titulo: e.target.title.value,
-                descripcion: e.target.description.value,
+                titulo: title,
+                descripcion: description,
                 categoria: category.value,
                 urgencia: selectedUrgency,
-                direccion: profile.address || 'Pendiente',
-                telefono: profile.phone || 'Pendiente',
+                direccion: profile.address || 'No definida',
+                telefono: profile.phone || 'No definido',
                 user_id: currentUser.id,
                 nombre_inquilino: currentUser.user_metadata.full_name,
                 email_inquilino: currentUser.email
             }]);
 
             if (error) {
-                alert('Error al enviar: ' + error.message);
+                showToast('Error: ' + error.message);
                 btn.disabled = false;
                 btn.innerHTML = 'Enviar Reporte <i class="fa-solid fa-paper-plane"></i>';
             } else {
                 btn.innerHTML = '¡Enviada con éxito! ✅';
                 btn.classList.add('success');
-                
                 setTimeout(() => {
                     e.target.reset();
                     selectedUrgency = null;
