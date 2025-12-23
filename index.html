@@ -309,11 +309,16 @@
 
         // AUTH
         async function login() {
-            await _supabase.auth.signInWithOAuth({ 
-                provider: 'google',
-                options: { redirectTo: window.location.origin + window.location.pathname }
-            });
+    // Calculamos la URL exacta para que Google sepa dónde devolvernos
+    const returnUrl = window.location.origin + window.location.pathname;
+    
+    await _supabase.auth.signInWithOAuth({ 
+        provider: 'google',
+        options: { 
+            redirectTo: returnUrl
         }
+    });
+}
 
         async function logout() {
             await _supabase.auth.signOut();
@@ -321,23 +326,30 @@
         }
 
         async function initializeAuth() {
-            if (authInitialized) return;
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) {
-                await handleUserSession(session);
-            } else {
-                document.getElementById('login-page').style.display = 'flex';
-            }
-            authInitialized = true;
+    if (authInitialized) return;
+    
+    // Primero intentamos recuperar la sesión actual
+    const { data: { session }, error } = await _supabase.auth.getSession();
+    
+    if (session) {
+        await handleUserSession(session);
+    } else {
+        // Si no hay sesión, mostramos la página de login
+        document.getElementById('login-page').style.display = 'flex';
+        document.getElementById('app-content').style.display = 'none';
+    }
+    
+    authInitialized = true;
 
-            _supabase.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' && session) {
-                    await handleUserSession(session);
-                } else if (event === 'SIGNED_OUT') {
-                    window.location.reload();
-                }
-            });
+    // Escuchamos cambios (login/logout)
+    _supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+            await handleUserSession(session);
+        } else if (event === 'SIGNED_OUT') {
+            window.location.reload();
         }
+    });
+}
 
         async function handleUserSession(session) {
             currentUser = session.user;
@@ -474,7 +486,13 @@
         });
 
         document.getElementById('incidentForm').onsubmit = handleSubmit;
-        window.onload = () => { initializeAuth(); checkInstallation(); };
+        window.onload = () => { 
+    // Damos un breve respiro para que la App instalada procese el retorno de Google
+    setTimeout(() => {
+        initializeAuth(); 
+        checkInstallation(); 
+    }, 500);
+};
     </script>
 </body>
 </html>
