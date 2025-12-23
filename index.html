@@ -42,6 +42,22 @@
             overscroll-behavior-y: contain;
         }
 
+        /* BANNER DE INSTALACIÓN (SOLO MÓVIL) */
+        #install-banner {
+            position: fixed; bottom: 20px; left: 20px; right: 20px;
+            background: var(--secondary); color: white;
+            padding: 20px; border-radius: 20px; z-index: 4000;
+            display: none; flex-direction: column; gap: 12px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .install-header { display: flex; align-items: center; gap: 12px; }
+        .install-icon { width: 45px; height: 45px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.4rem; color: white; }
+        .install-steps { font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; line-height: 1.4; }
+        .install-close { position: absolute; top: 10px; right: 15px; color: rgba(255,255,255,0.5); font-size: 1.2rem; cursor: pointer; }
+
         #toast {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: #333; color: white; padding: 12px 25px; border-radius: 50px;
@@ -111,6 +127,18 @@
     </style>
 </head>
 <body>
+
+    <div id="install-banner">
+        <span class="install-close" onclick="this.parentElement.style.display='none'">×</span>
+        <div class="install-header">
+            <div class="install-icon">H</div>
+            <div>
+                <strong style="display:block">Instala Housezen</strong>
+                <span style="font-size:0.75rem; opacity:0.8">Reporta averías más rápido</span>
+            </div>
+        </div>
+        <div id="install-instructions" class="install-steps"></div>
+    </div>
 
     <div id="toast"><i class="fa-solid fa-circle-info"></i> <span id="toast-text"></span></div>
 
@@ -245,6 +273,25 @@
         let selectedUrgency = null;
         let lastRadioChecked = null;
 
+        // LÓGICA DE INSTALACIÓN (SOLO MÓVIL)
+        function checkInstallation() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const banner = document.getElementById('install-banner');
+            const instructions = document.getElementById('install-instructions');
+            
+            if (!isStandalone && isMobile) {
+                const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                if (isiOS) {
+                    banner.style.display = 'flex';
+                    instructions.innerHTML = 'Pulsa <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket"></i> y luego <strong>"Añadir a pantalla de inicio"</strong>.';
+                } else if (/Android/.test(navigator.userAgent)) {
+                    banner.style.display = 'flex';
+                    instructions.innerHTML = 'Pulsa los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical"></i> y elige <strong>"Instalar aplicación"</strong>.';
+                }
+            }
+        }
+
         function showToast(text) {
             const t = document.getElementById('toast');
             document.getElementById('toast-text').innerText = text;
@@ -276,11 +323,7 @@
                     document.getElementById('profile-name').value = fullName;
                     document.getElementById('profile-email').value = currentUser.email;
                     
-                    const { data: profile } = await _supabase
-                        .from('perfiles')
-                        .select('direccion, telefono')
-                        .eq('id', currentUser.id)
-                        .single();
+                    const { data: profile } = await _supabase.from('perfiles').select('direccion, telefono').eq('id', currentUser.id).single();
 
                     if (!profile || !profile.direccion) {
                         document.getElementById('setup-modal').style.display = 'flex';
@@ -292,15 +335,13 @@
                     }
                 } else {
                     document.getElementById('login-page').style.display = 'flex';
-                    document.getElementById('app-content').style.display = 'none';
                 }
             });
         }
 
         function handleRadioClick(radio) {
-            if (lastRadioChecked === radio) {
-                radio.checked = false; lastRadioChecked = null;
-            } else { lastRadioChecked = radio; }
+            if (lastRadioChecked === radio) { radio.checked = false; lastRadioChecked = null; } 
+            else { lastRadioChecked = radio; }
         }
 
         async function saveUserData() {
@@ -310,12 +351,10 @@
             
             const btn = document.getElementById('btnSave');
             btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
             const { error } = await _supabase.from('perfiles').upsert({ id: currentUser.id, direccion: address, telefono: phone });
 
-            if(error) {
-                showToast("Error al guardar"); btn.disabled = false;
-            } else {
+            if(error) { showToast("Error"); btn.disabled = false; } 
+            else {
                 document.getElementById('inc-address').value = address;
                 document.getElementById('inc-phone').value = phone;
                 btn.innerHTML = '¡Guardado! ✅'; btn.classList.add('success');
@@ -326,10 +365,7 @@
             }
         }
 
-        function goToProfile() {
-            document.getElementById('setup-modal').style.display = 'none';
-            showPage('/profile');
-        }
+        function goToProfile() { document.getElementById('setup-modal').style.display = 'none'; showPage('/profile'); }
 
         async function handleSubmit(e) {
             e.preventDefault();
@@ -349,9 +385,8 @@
                 user_id: currentUser.id, nombre_inquilino: currentUser.user_metadata.full_name, email_inquilino: currentUser.email
             }]);
 
-            if (error) {
-                showToast('Error'); btn.disabled = false;
-            } else {
+            if (error) { showToast('Error'); btn.disabled = false; } 
+            else {
                 btn.innerHTML = '¡Enviado! ✅'; btn.classList.add('success');
                 setTimeout(() => {
                     e.target.reset(); selectedUrgency = null;
@@ -365,23 +400,22 @@
         async function renderIncidents() {
             const container = document.getElementById('incidents-list-container');
             container.innerHTML = '<p style="text-align:center; padding:50px; color:gray;"><i class="fa-solid fa-spinner fa-spin"></i></p>';
-
             const { data } = await _supabase.from('incidencias').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
 
             if (!data || !data.length) {
-                container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">No has reportado incidencias aún.</div>';
+                container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">No hay reportes aún.</div>';
                 return;
             }
 
-            container.innerHTML = '<h2 style="margin-bottom:15px; padding-left:5px;">Historial de reportes</h2>' + data.map(inc => `
+            container.innerHTML = '<h2 style="margin-bottom:15px; padding-left:5px;">Historial</h2>' + data.map(inc => `
                 <div class="incident-item">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
-                        <strong style="color:var(--secondary); font-size:1rem;">${inc.titulo}</strong>
+                        <strong style="color:var(--secondary);">${inc.titulo}</strong>
                         <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
                     </div>
-                    <p style="font-size:0.85rem; color:var(--text-light); margin-bottom:12px;">${inc.descripcion}</p>
-                    <div style="font-size:0.7rem; color:var(--text-light); border-top:1px solid #f0f0f0; padding-top:10px; display:flex; justify-content:space-between; align-items:center;">
-                        <span><i class="fa-regular fa-calendar"></i> ${new Date(inc.created_at).toLocaleDateString()}</span>
+                    <p style="font-size:0.85rem; color:var(--text-light);">${inc.descripcion}</p>
+                    <div style="font-size:0.7rem; color:var(--text-light); border-top:1px solid #f0f0f0; margin-top:10px; padding-top:10px; display:flex; justify-content:space-between;">
+                        <span>${new Date(inc.created_at).toLocaleDateString()}</span>
                         <span style="color:var(--primary); font-weight:800;">#${inc.categoria.toUpperCase()}</span>
                     </div>
                 </div>
@@ -400,10 +434,7 @@
             const nav = document.querySelector(`[data-path="${path}"]`);
             if(nav) nav.classList.add('active');
             if (path === '/incidencias') renderIncidents();
-            if (window.innerWidth < 1000) {
-                document.getElementById('sidebar').classList.remove('active');
-                document.getElementById('overlay').classList.remove('active');
-            }
+            if (window.innerWidth < 1000) { toggleMenu(); }
             window.scrollTo(0,0);
         }
 
@@ -417,7 +448,7 @@
         });
 
         document.getElementById('incidentForm').onsubmit = handleSubmit;
-        window.onload = checkUser;
+        window.onload = () => { checkUser(); checkInstallation(); };
     </script>
 </body>
 </html>
