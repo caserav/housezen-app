@@ -273,7 +273,7 @@
         let selectedUrgency = null;
         let lastRadioChecked = null;
 
-        // LÓGICA DE INSTALACIÓN (SOLO MÓVIL)
+        // LÓGICA DE INSTALACIÓN
         function checkInstallation() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -311,6 +311,7 @@
             window.location.reload();
         }
 
+        // CORRECCIÓN BUCLE: Solo mostramos login si realmente no hay sesión activa
         async function checkUser() {
             _supabase.auth.onAuthStateChange(async (event, session) => {
                 if (session && session.user) {
@@ -334,7 +335,9 @@
                         document.getElementById('user-phone').value = profile.telefono;
                     }
                 } else {
+                    // Si no hay sesión, mostramos el login
                     document.getElementById('login-page').style.display = 'flex';
+                    document.getElementById('app-content').style.display = 'none';
                 }
             });
         }
@@ -434,7 +437,9 @@
             const nav = document.querySelector(`[data-path="${path}"]`);
             if(nav) nav.classList.add('active');
             if (path === '/incidencias') renderIncidents();
-            if (window.innerWidth < 1000) { toggleMenu(); }
+            // Solo cerramos menú si está abierto y es vista móvil
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar.classList.contains('active')) { toggleMenu(); }
             window.scrollTo(0,0);
         }
 
