@@ -309,9 +309,13 @@
 
         // AUTH
         async function login() {
+    // Definimos la URL exacta de tu proyecto en GitHub Pages
+    const returnUrl = "https://caserav.github.io/housezen-app/";
+
     const { data, error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
+            redirectTo: returnUrl, // <--- Esto es lo que faltaba
             skipBrowserRedirect: true
         }
     });
@@ -321,26 +325,26 @@
         return;
     }
 
-    // MUY IMPORTANTE: usar location.href, no window.open
-    window.location.href = data.url;
+    if (data.url) {
+        window.location.href = data.url;
+    }
 }
 
-        async function initializeAuth() {
+      async function initializeAuth() {
     if (authInitialized) return;
 
-    // 1️⃣ Registrar listener ANTES
+    // 1. Escuchamos cambios de sesión (Login/Logout)
     _supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
             await handleUserSession(session);
         }
-
         if (event === 'SIGNED_OUT') {
             document.getElementById('login-page').style.display = 'flex';
             document.getElementById('app-content').style.display = 'none';
         }
     });
 
-    // 2️⃣ Luego comprobar sesión existente
+    // 2. Comprobamos si ya hay una sesión activa al cargar
     const { data: { session } } = await _supabase.auth.getSession();
 
     if (session) {
