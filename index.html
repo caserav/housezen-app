@@ -309,17 +309,16 @@
 
         // AUTH
         async function login() {
-    const { error } = await _supabase.auth.signInWithOAuth({
+    // Definimos la URL exacta de tu proyecto en GitHub Pages
+    const returnUrl = "https://caserav.github.io/housezen-app/";
+
+    const { data, error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: "https://caserav.github.io/housezen-app/"
+            redirectTo: returnUrl, // <--- Esto es lo que faltaba
+            skipBrowserRedirect: true
         }
     });
-
-    if (error) {
-        showToast("Error al iniciar sesión");
-    }
-}
 
     if (error) {
         showToast("Error al iniciar sesión");
@@ -432,95 +431,35 @@ async function logout() {
         }
 
         async function handleSubmit(e) {
-    e.preventDefault();
-    
-    // 1. Evitar que el usuario pulse varias veces si ya se está enviando
-    if (isSubmitting) return;
+            e.preventDefault();
+            if (isSubmitting) return;
+            const category = e.target.querySelector('input[name="category"]:checked');
+            const title = e.target.title.value.trim();
+            if (!category || !title || !selectedUrgency) return showToast("Revisa el formulario");
 
-    // 2. RE-CONEXIÓN: Verificar que seguimos teniendo sesión antes de enviar
-    if (!currentUser) {
-        const { data: { session } } = await _supabase.auth.getSession();
-        if (session) {
-            currentUser = session.user;
-        } else {
-            showToast("Sesión perdida. Por favor, refresca la página.");
-            return;
+            isSubmitting = true;
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true; btn.innerHTML = 'Enviando...';
+
+            const { error } = await _supabase.from('incidencias').insert([{
+                titulo: title, descripcion: e.target.description.value.trim(),
+                categoria: category.value, urgencia: selectedUrgency,
+                direccion: document.getElementById('inc-address').value,
+                telefono: document.getElementById('inc-phone').value,
+                user_id: currentUser.id, nombre_inquilino: currentUser.user_metadata.full_name, email_inquilino: currentUser.email
+            }]);
+
+            if (error) { showToast('Error'); btn.disabled = false; isSubmitting = false; } 
+            else {
+                btn.innerHTML = '¡Enviado! ✅'; btn.classList.add('success');
+                setTimeout(() => {
+                    e.target.reset(); selectedUrgency = null;
+                    document.querySelectorAll('.priority-btn').forEach(b => b.className = 'priority-btn');
+                    btn.className = 'submit-btn'; btn.innerHTML = 'Enviar a Housezen <i class="fa-solid fa-paper-plane"></i>';
+                    btn.disabled = false; isSubmitting = false; showPage('incidencias');
+                }, 1200);
+            }
         }
-    }
-
-    // 3. Validación de campos
-    const category = e.target.querySelector('input[name="category"]:checked');
-    const title = e.target.title.value.trim();
-    const description = e.target.description.value.trim();
-    
-    if (!category || !title || !selectedUrgency) {
-        showToast("Por favor, rellena todos los campos");
-        return;
-    }
-
-    // 4. Preparar el botón de envío
-    isSubmitting = true;
-    const btn = document.getElementById('btnSubmit');
-    const originalBtnHTML = btn.innerHTML; // Guardamos el diseño original
-    btn.disabled = true; 
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
-
-    // 5. SEGURO DE TIEMPO: Si en 12 segundos no hay respuesta, desbloqueamos
-   // Si en 10 segundos no ha respondido, cancelamos el bloqueo
-const timeout = setTimeout(() => {
-    if (isSubmitting) {
-        isSubmitting = false;
-        btn.disabled = false;
-        btn.innerHTML = 'Reintentar envío <i class="fa-solid fa-paper-plane"></i>';
-        showToast("Conexión lenta, intenta de nuevo");
-    }
-}, 10000);
-
-    // 6. Envío real a Supabase
-    const { error } = await _supabase.from('incidencias').insert([{
-        titulo: title, 
-        descripcion: description,
-        categoria: category.value, 
-        urgencia: selectedUrgency,
-        direccion: document.getElementById('inc-address').value,
-        telefono: document.getElementById('inc-phone').value,
-        user_id: currentUser.id, 
-        nombre_inquilino: currentUser.user_metadata.full_name, 
-        email_inquilino: currentUser.email
-    }]);
-
-    // Limpiamos el seguro de tiempo porque ya respondió Supabase
-    clearTimeout(timeout);
-
-    if (error) {
-        console.error("Error al enviar:", error.message);
-        showToast('Error al enviar. Comprueba tu conexión.');
-        btn.disabled = false;
-        btn.innerHTML = originalBtnHTML;
-        isSubmitting = false;
-    } else {
-        // ÉXITO
-        btn.innerHTML = '¡Enviado con éxito! ✅';
-        btn.classList.add('success');
-        
-        // Limpiamos caché de incidencias para que al ir a la lista pida las nuevas
-        localStorage.removeItem('cache_incidencias');
-
-        setTimeout(() => {
-            // Resetear formulario y volver a estado normal
-            e.target.reset(); 
-            selectedUrgency = null;
-            document.querySelectorAll('.priority-btn').forEach(b => b.className = 'priority-btn');
-            btn.className = 'submit-btn'; 
-            btn.innerHTML = originalBtnHTML;
-            btn.disabled = false; 
-            isSubmitting = false; 
-            
-            // Ir a la página de mis reportes
-            showPage('incidencias');
-        }, 1500);
-    }
-}
 
         async function renderIncidents() {
     const container = document.getElementById('incidents-list-container');
@@ -631,24 +570,13 @@ function dibujarIncidencias(data, isOffline) {
         });
 
         document.getElementById('incidentForm').onsubmit = handleSubmit;
-       // SOLO UN window.onload AL FINAL
         window.onload = () => { 
-            setTimeout(() => {
-                initializeAuth(); 
-                checkInstallation(); 
-            }, 500);
-        };
-
-        // EL DESPERTADOR (Va suelto, fuera del onload)
-        document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === "visible") {
-                _supabase.auth.getSession().then(({ data: { session } }) => {
-                    if (session) {
-                        currentUser = session.user;
-                        if (document.getElementById('page-incidencias').classList.contains('active')) {
-                            renderIncidents();
-                        }
-                    }
-                });
-            }
-        });
+    // Damos un breve respiro para que la App instalada procese el retorno de Google
+    setTimeout(() => {
+        initializeAuth(); 
+        checkInstallation(); 
+    }, 500);
+};
+    </script>
+</body>
+</html>
