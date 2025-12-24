@@ -360,7 +360,14 @@
 async function logout() {
     console.log("Intentando cerrar sesión...");
     
-    // 1. Llamamos a Supabase para destruir la sesión
+    // 1. Borramos la caché de incidencias para que el siguiente usuario no las vea
+    localStorage.removeItem('cache_incidencias');
+    
+    // 2. Limpiamos el resto del almacenamiento local por seguridad
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // 3. Cerramos sesión en Supabase
     const { error } = await _supabase.auth.signOut();
     
     if (error) {
@@ -368,8 +375,7 @@ async function logout() {
         showToast("Error al cerrar sesión");
     } else {
         console.log("Sesión cerrada con éxito");
-        // 2. Limpiamos cualquier rastro y recargamos la web
-        // Al recargar, initializeAuth verá que no hay sesión y mostrará el login
+        // 4. Redirigimos al inicio
         window.location.href = "https://caserav.github.io/housezen-app/";
     }
 }
@@ -456,29 +462,84 @@ async function logout() {
         }
 
         async function renderIncidents() {
-            const container = document.getElementById('incidents-list-container');
-            container.innerHTML = '<p style="text-align:center; padding:50px; color:gray;"><i class="fa-solid fa-spinner fa-spin"></i></p>';
-            const { data } = await _supabase.from('incidencias').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    const container = document.getElementById('incidents-list-container');
+    
+    // 1. Intentar cargar lo que ya tenemos guardado en el móvil
+    const localData = localStorage.getItem('cache_incidencias');
+    if (localData) {
+        const incidents = JSON.parse(localData);
+        dibujarIncidencias(incidents, true); // Los dibujamos con un aviso de "Modo Offline"
+    } else {
+        container.innerHTML = '<p style="text-align:center; padding:50px; color:gray;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</p>';
+    }
 
-            if (!data || !data.length) {
-                container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">Sin reportes.</div>';
-                return;
-            }
-
-            container.innerHTML = '<h2 style="margin-bottom:15px;">Historial</h2>' + data.map(inc => `
-                <div class="incident-item">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <strong>${inc.titulo}</strong>
-                        <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
-                    </div>
-                    <p style="font-size:0.85rem; color:var(--text-light);">${inc.descripcion}</p>
-                    <div style="font-size:0.7rem; color:var(--text-light); border-top:1px solid #f0f0f0; margin-top:10px; padding-top:10px; display:flex; justify-content:space-between;">
-                        <span>${new Date(inc.created_at).toLocaleDateString()}</span>
-                        <span style="color:var(--primary); font-weight:800;">#${inc.categoria.toUpperCase()}</span>
-                    </div>
-                </div>
-            `).join('');
+    try {
+        // 2. Asegurar que tenemos sesión antes de pedir a Supabase
+        if (!currentUser) {
+            const { data: { session } } = await _supabase.auth.getSession();
+            if (session) currentUser = session.user;
+            else return;
         }
+
+        // 3. Pedir datos frescos a Supabase
+        const { data, error } = await _supabase.from('incidencias')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // 4. Guardar los nuevos datos en el móvil para la próxima vez
+        localStorage.setItem('cache_incidencias', JSON.stringify(data));
+
+        // 5. Dibujar los datos frescos (quitando el aviso de offline si existía)
+        dibujarIncidencias(data, false);
+
+    } catch (err) {
+        console.error("Error de red:", err);
+        // Si hay error y no teníamos nada en caché, avisamos
+        if (!localData) {
+            container.innerHTML = '<div class="card" style="text-align:center; padding:40px;">No se pudieron cargar los reportes. Pulsa para reintentar.</div>';
+        }
+    }
+}
+
+// Función auxiliar para no repetir código
+function dibujarIncidencias(data, isOffline) {
+    const container = document.getElementById('incidents-list-container');
+    
+    if (!data || data.length === 0) {
+        container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">Sin reportes aún.</div>';
+        return;
+    }
+
+    let html = '<h2 style="margin-bottom:15px;">Historial</h2>';
+    
+    // Si estamos mostrando datos viejos, añadimos el aviso que pediste
+    if (isOffline) {
+        html += `
+            <div style="background: #FFF9C4; color: #F57F17; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 0.8rem; text-align: center; border: 1px solid #FBC02D;">
+                <i class="fa-solid fa-clock-rotate-left"></i> Mostrando datos guardados. 
+                <span onclick="renderIncidents()" style="text-decoration: underline; cursor: pointer; font-weight: bold;">Refrescar para ver nuevos</span>
+            </div>`;
+    }
+
+    html += data.map(inc => `
+        <div class="incident-item">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <strong>${inc.titulo}</strong>
+                <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
+            </div>
+            <p style="font-size:0.85rem; color:var(--text-light);">${inc.descripcion}</p>
+            <div style="font-size:0.7rem; color:var(--text-light); border-top:1px solid #f0f0f0; margin-top:10px; padding-top:10px; display:flex; justify-content:space-between;">
+                <span>${new Date(inc.created_at).toLocaleDateString()}</span>
+                <span style="color:var(--primary); font-weight:800;">#${inc.categoria.toUpperCase()}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = html;
+}
 
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
