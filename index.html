@@ -309,16 +309,17 @@
 
         // AUTH
         async function login() {
-    // Definimos la URL exacta de tu proyecto en GitHub Pages
-    const returnUrl = "https://caserav.github.io/housezen-app/";
-
-    const { data, error } = await _supabase.auth.signInWithOAuth({
+    const { error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: returnUrl, // <--- Esto es lo que faltaba
-            skipBrowserRedirect: true
+            redirectTo: "https://caserav.github.io/housezen-app/"
         }
     });
+
+    if (error) {
+        showToast("Error al iniciar sesión");
+    }
+}
 
     if (error) {
         showToast("Error al iniciar sesión");
