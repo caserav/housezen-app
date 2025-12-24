@@ -275,6 +275,15 @@
         let authInitialized = false;
         let isSubmitting = false;
 
+// Fuerza a la app a olvidar la sesión al cerrar la pestaña o el móvil
+window.onbeforeunload = function() {
+    _supabase.auth.signOut();
+};
+
+
+
+
+        
         // INSTALACIÓN
         function dismissInstallBanner() {
             document.getElementById('install-banner').style.display = 'none';
@@ -331,51 +340,37 @@
 }
 
       async function initializeAuth() {
-    if (authInitialized) return;
-
-    // 1. Escuchamos cambios de sesión (Login/Logout)
-    _supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-            await handleUserSession(session);
-        }
-        if (event === 'SIGNED_OUT') {
-            document.getElementById('login-page').style.display = 'flex';
-            document.getElementById('app-content').style.display = 'none';
-        }
-    });
-
-    // 2. Comprobamos si ya hay una sesión activa al cargar
+    // Al entrar, preguntamos directamente por la sesión actual
     const { data: { session } } = await _supabase.auth.getSession();
 
     if (session) {
+        // Si hay sesión (porque acabas de volver de Google), entras
         await handleUserSession(session);
     } else {
+        // Si no, vas directo al login. Sin esperas ni "vigilantes".
         document.getElementById('login-page').style.display = 'flex';
         document.getElementById('app-content').style.display = 'none';
     }
-
     authInitialized = true;
 }
-
+        
 async function logout() {
     console.log("Intentando cerrar sesión...");
     
-    // 1. Borramos la caché de incidencias para que el siguiente usuario no las vea
-    localStorage.removeItem('cache_incidencias');
+    // 1. Cerramos sesión en Supabase PRIMERO
+    // Esto invalida el token en el servidor de inmediato
+    const { error } = await _supabase.auth.signOut();
     
-    // 2. Limpiamos el resto del almacenamiento local por seguridad
+    // 2. Limpiamos TODO el rastro local, pase lo que pase con el error
     localStorage.clear();
     sessionStorage.clear();
 
-    // 3. Cerramos sesión en Supabase
-    const { error } = await _supabase.auth.signOut();
-    
     if (error) {
         console.error("Error al cerrar sesión:", error.message);
-        showToast("Error al cerrar sesión");
+        // Aun con error, redirigimos porque ya limpiamos el almacenamiento
+        window.location.href = "https://caserav.github.io/housezen-app/";
     } else {
         console.log("Sesión cerrada con éxito");
-        // 4. Redirigimos al inicio
         window.location.href = "https://caserav.github.io/housezen-app/";
     }
 }
