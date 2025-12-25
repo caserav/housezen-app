@@ -4,127 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Housezen App</title>
-    
+
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Housezen">
     <meta name="theme-color" content="#2A9D8F">
-    
+
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <style>
-        :root {
-            --primary: #2A9D8F;
-            --primary-dark: #21867a;
-            --secondary: #264653;
-            --bg: #F4F7F6;
-            --surface: #FFFFFF;
-            --text-main: #2D3436;
-            --text-light: #636E72;
-            --border: #DFE6E9;
-            --radius: 16px;
-            --shadow: 0 10px 30px rgba(0,0,0,0.05);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
-        body { 
-            background-color: var(--bg); 
-            color: var(--text-main); 
-            line-height: 1.6; 
-            overflow-x: hidden;
-            overscroll-behavior-y: contain;
-        }
-
-        /* BANNER DE INSTALACIÓN */
-        #install-banner {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            background: var(--secondary); color: white;
-            padding: 20px; border-radius: 20px; z-index: 4000;
-            display: none; flex-direction: column; gap: 12px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-            animation: slideUp 0.5s ease;
-        }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        .install-header { display: flex; align-items: center; gap: 12px; }
-        .install-icon { width: 45px; height: 45px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.4rem; color: white; }
-        .install-steps { font-size: 0.85rem; background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; line-height: 1.4; }
-        .install-close { position: absolute; top: 10px; right: 15px; color: rgba(255,255,255,0.5); font-size: 1.2rem; cursor: pointer; }
-
-        #toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: #333; color: white; padding: 12px 25px; border-radius: 50px;
-            font-size: 0.9rem; font-weight: 600; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-            z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px;
-        }
-        #toast.show { transform: translateX(-50%) translateY(0); }
-
-        #login-page { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; background: white; }
-        .google-btn { background: white; color: var(--text-main); padding: 15px 25px; border: 2px solid var(--border); border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); transition: 0.3s; }
-
-        #app-content { display: none; }
-
-        #setup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: white; padding: 30px; border-radius: 20px; text-align: center; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-
-        .top-bar { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 70px; 
-            background: var(--surface); display: flex; align-items: center; 
-            padding: env(safe-area-inset-top) 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 1000; 
-        }
-        .menu-btn { background: none; border: none; cursor: pointer; color: var(--secondary); padding: 8px; margin-right: 15px; border-radius: 8px; }
-        .logo-text { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; text-decoration: none; }
-
-        .sidebar-nav { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: var(--secondary); color: white; transition: 0.3s; z-index: 1001; padding-top: 50px; }
-        .sidebar-nav.active { left: 0; }
-        .nav-item { padding: 18px 25px; display: flex; align-items: center; gap: 15px; color: rgba(255,255,255,0.7); cursor: pointer; }
-        .nav-item.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--primary); }
-
-        .page { display: none; padding: 90px 20px 40px; max-width: 1000px; margin: 0 auto; animation: fadeIn 0.4s ease; }
-        .page.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        .card { background: var(--surface); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
-        h2 { font-size: 0.85rem; color: var(--secondary); margin-bottom: 18px; display: flex; align-items: center; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        h2 .icon { margin-right: 10px; color: var(--primary); background: #E0F2F1; padding: 8px; border-radius: 8px; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; }
-
-        .form-group { margin-bottom: 16px; }
-        label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-light); margin-bottom: 6px; }
-        input, textarea { width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 12px; font-size: 1rem; background: #FAFAFA; transition: 0.3s; appearance: none; }
-        input:focus { border-color: var(--primary); outline: none; background: white; }
-        input[readonly] { background: #f0f0f0; color: #888; cursor: not-allowed; border-style: dashed; }
-
-        .submit-btn { width: 100%; padding: 18px; background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.4s; gap: 10px; font-size: 1rem; }
-        .submit-btn.success { background: #4CAF50 !important; }
-
-        .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-        .cat-option input { display: none; }
-        .cat-card { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px; border: 2px solid var(--border); border-radius: 12px; cursor: pointer; background: white; transition: 0.2s; font-size: 0.75rem; font-weight: 600; text-align: center; }
-        .cat-option input:checked + .cat-card { border-color: var(--primary); background: #E0F2F1; color: var(--primary-dark); transform: scale(0.98); }
-
-        .priority-btn { flex: 1; padding: 12px; border-radius: 10px; border: 2px solid var(--border); background: #fff; text-align: center; cursor: pointer; font-weight: 700; font-size: 0.8rem; transition: 0.2s; }
-        .priority-btn.selected.urgency-baja { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
-        .priority-btn.selected.urgency-media { background: #fffde7; border-color: #ffeb3b; color: #f9a825; }
-        .priority-btn.selected.urgency-alta { background: #ffebee; border-color: #f44336; color: #c62828; }
-
-        .incident-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 15px; position: relative; overflow: hidden; }
-        .status-badge { padding: 4px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; color: white; text-transform: uppercase; }
-        .status-Enviada { background: #3498db; }
-        .status-Proceso { background: #f1c40f; }
-        .status-Resuelta { background: #2ecc71; }
-        
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: none; z-index: 1000; backdrop-filter: blur(2px); }
-        .menu-overlay.active { display: block; }
-
-        .logo-h { width: 30px; height: 30px; background: var(--primary); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 1.2rem; }
-    </style>
 </head>
 <body>
 
@@ -133,41 +29,49 @@
         <div class="install-header">
             <div class="install-icon">H</div>
             <div>
-                <strong style="display:block">Instala Housezen</strong>
-                <span style="font-size:0.75rem; opacity:0.8">Reporta averías más rápido</span>
+                <strong style="display:block; margin-bottom: 2px;">Instala Housezen</strong>
+                <span style="font-size:0.8rem; opacity:0.85;">Reporta averías más rápido</span>
             </div>
         </div>
         <div id="install-instructions" class="install-steps"></div>
     </div>
 
-    <div id="toast"><i class="fa-solid fa-circle-info"></i> <span id="toast-text"></span></div>
+    <div id="toast">
+        <i class="fa-solid fa-circle-info"></i>
+        <span id="toast-text"></span>
+    </div>
 
     <div id="login-page">
-        <div style="background: var(--bg); width: 80px; height: 80px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: var(--shadow);">
-            <i class="fa-solid fa-house-chimney" style="font-size: 2.5rem; color: var(--primary);"></i>
+        <div class="login-logo">
+            <i class="fa-solid fa-house-chimney"></i>
         </div>
-        <h1 style="color: var(--secondary); font-weight: 800; margin-bottom: 5px;">Housezen</h1>
-        <p style="color: var(--text-light); margin-bottom: 35px; font-size: 0.9rem;">Tu hogar, bajo control.</p>
+        <h1 class="login-title">Housezen</h1>
+        <p class="login-subtitle">Tu hogar, bajo control</p>
         <button class="google-btn" onclick="login()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
             Acceder con Google
         </button>
     </div>
 
     <div id="setup-modal">
         <div class="modal-card">
-            <div style="width: 60px; height: 60px; background: #FFF9C4; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                <i class="fa-solid fa-user-pen" style="font-size: 1.5rem; color: #FBC02D;"></i>
+            <div class="modal-icon">
+                <i class="fa-solid fa-user-pen"></i>
             </div>
             <h3>Perfil Incompleto</h3>
-            <p style="color: var(--text-light); margin: 15px 0; font-size: 0.9rem;">Necesitamos tu dirección y teléfono para poder enviar técnicos a tu vivienda.</p>
-            <button class="submit-btn" onclick="goToProfile()">Completar ahora</button>
+            <p>Necesitamos tu dirección y teléfono para poder enviar técnicos a tu vivienda.</p>
+            <button class="submit-btn" onclick="goToProfile()">
+                <i class="fa-solid fa-arrow-right"></i>
+                Completar ahora
+            </button>
         </div>
     </div>
 
     <div id="app-content">
         <div class="top-bar">
-            <button class="menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars-staggered fa-lg"></i></button>
+            <button class="menu-btn" onclick="toggleMenu()" aria-label="Abrir menú">
+                <i class="fa-solid fa-bars-staggered fa-lg"></i>
+            </button>
             <div class="logo-text">
                 <div class="logo-h">H</div>
                 Housezen
@@ -175,81 +79,152 @@
         </div>
 
         <div class="menu-overlay" id="overlay" onclick="toggleMenu()"></div>
-        
+
         <nav class="sidebar-nav" id="sidebar">
-            <div style="padding: 25px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;">
-                <div style="font-size: 0.7rem; color: var(--primary); text-transform: uppercase;">Inquilino</div>
-                <div id="user-name" style="font-size: 1.1rem;">...</div>
+            <div class="sidebar-header">
+                <div class="sidebar-label">Inquilino</div>
+                <div class="sidebar-username" id="user-name">...</div>
             </div>
-            <div class="nav-item active" data-path="home" onclick="showPage('home')"><i class="fa-solid fa-plus-square"></i> Nueva incidencia</div>
-            <div class="nav-item" data-path="incidencias" onclick="showPage('incidencias')"><i class="fa-solid fa-rectangle-list"></i> Mis Reportes</div>
-            <div class="nav-item" data-path="profile" onclick="showPage('profile')"><i class="fa-solid fa-id-card"></i> Mi Perfil</div>
-            <div class="nav-item" onclick="logout()" style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.05); color: #ffab91;"><i class="fa-solid fa-power-off"></i> Cerrar sesión</div>
+            <div class="nav-item active" data-path="home" onclick="showPage('home')">
+                <i class="fa-solid fa-plus-square"></i>
+                <span>Nueva incidencia</span>
+            </div>
+            <div class="nav-item" data-path="incidencias" onclick="showPage('incidencias')">
+                <i class="fa-solid fa-rectangle-list"></i>
+                <span>Mis Reportes</span>
+            </div>
+            <div class="nav-item" data-path="profile" onclick="showPage('profile')">
+                <i class="fa-solid fa-id-card"></i>
+                <span>Mi Perfil</span>
+            </div>
+            <div class="nav-item nav-logout" onclick="logout()">
+                <i class="fa-solid fa-power-off"></i>
+                <span>Cerrar sesión</span>
+            </div>
         </nav>
 
         <main>
             <div id="page-home" class="page active">
+                <h1 class="page-title">Nueva Incidencia</h1>
+
                 <form id="incidentForm">
                     <div class="card">
-                        <h2><span class="icon"><i class="fa-solid fa-location-dot"></i></span> Vivienda actual</h2>
+                        <h2 class="card-header">
+                            <span class="icon"><i class="fa-solid fa-location-dot"></i></span>
+                            Vivienda actual
+                        </h2>
                         <div class="form-group">
+                            <label>Dirección</label>
                             <input type="text" id="inc-address" readonly>
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
+                        <div class="form-group">
+                            <label>Teléfono</label>
                             <input type="text" id="inc-phone" readonly>
                         </div>
                     </div>
 
                     <div class="card">
-                        <h2><span class="icon"><i class="fa-solid fa-grip"></i></span> Categoría de avería</h2>
+                        <h2 class="card-header">
+                            <span class="icon"><i class="fa-solid fa-grip"></i></span>
+                            Categoría de avería
+                        </h2>
                         <div class="category-grid">
-                            <label class="cat-option"><input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-droplet fa-xl"></i><span>Fontanería</span></div></label>
-                            <label class="cat-option"><input type="radio" name="category" value="Electricidad" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-bolt-lightning fa-xl"></i><span>Luz</span></div></label>
-                            <label class="cat-option"><input type="radio" name="category" value="Electrodomésticos" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-plug fa-xl"></i><span>Electrodomésticos</span></div></label>
-                            <label class="cat-option"><input type="radio" name="category" value="Cerrajería" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-key fa-xl"></i><span>Llaves</span></div></label>
-                            <label class="cat-option"><input type="radio" name="category" value="Otros" onclick="handleRadioClick(this)"><div class="cat-card"><i class="fa-solid fa-ellipsis fa-xl"></i><span>Otros</span></div></label>
+                            <label class="cat-option">
+                                <input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)">
+                                <div class="cat-card">
+                                    <i class="fa-solid fa-droplet"></i>
+                                    <span>Fontanería</span>
+                                </div>
+                            </label>
+                            <label class="cat-option">
+                                <input type="radio" name="category" value="Electricidad" onclick="handleRadioClick(this)">
+                                <div class="cat-card">
+                                    <i class="fa-solid fa-bolt-lightning"></i>
+                                    <span>Luz</span>
+                                </div>
+                            </label>
+                            <label class="cat-option">
+                                <input type="radio" name="category" value="Electrodomésticos" onclick="handleRadioClick(this)">
+                                <div class="cat-card">
+                                    <i class="fa-solid fa-plug"></i>
+                                    <span>Electrodomésticos</span>
+                                </div>
+                            </label>
+                            <label class="cat-option">
+                                <input type="radio" name="category" value="Cerrajería" onclick="handleRadioClick(this)">
+                                <div class="cat-card">
+                                    <i class="fa-solid fa-key"></i>
+                                    <span>Llaves</span>
+                                </div>
+                            </label>
+                            <label class="cat-option">
+                                <input type="radio" name="category" value="Otros" onclick="handleRadioClick(this)">
+                                <div class="cat-card">
+                                    <i class="fa-solid fa-ellipsis"></i>
+                                    <span>Otros</span>
+                                </div>
+                            </label>
                         </div>
                     </div>
 
                     <div class="card">
-                        <h2><span class="icon"><i class="fa-solid fa-comment-dots"></i></span> Detalles técnicos</h2>
+                        <h2 class="card-header">
+                            <span class="icon"><i class="fa-solid fa-comment-dots"></i></span>
+                            Detalles técnicos
+                        </h2>
                         <div class="form-group">
                             <label>Breve resumen</label>
-                            <input type="text" name="title" placeholder="Breve descripción de la avería" maxlength="100">
+                            <input type="text" name="title" placeholder="Ej: Grifo del baño gotea" maxlength="100" required>
                         </div>
                         <div class="form-group">
-                            <label>Explícanos más</label>
-                            <textarea name="description" rows="3" placeholder="Danos una descripción detallada de la incidencia" maxlength="500"></textarea>
+                            <label>Descripción detallada</label>
+                            <textarea name="description" rows="4" placeholder="Explícanos más sobre la incidencia..." maxlength="500"></textarea>
                         </div>
-                        <label>Nivel de Urgencia</label>
-                        <div style="display:flex; gap:10px; margin-top:10px;">
-                            <div class="priority-btn" data-level="baja">Baja</div>
-                            <div class="priority-btn" data-level="media">Media</div>
-                            <div class="priority-btn" data-level="alta">Alta</div>
+                        <div class="form-group">
+                            <label>Nivel de Urgencia</label>
+                            <div class="priority-group">
+                                <div class="priority-btn" data-level="baja">Baja</div>
+                                <div class="priority-btn" data-level="media">Media</div>
+                                <div class="priority-btn" data-level="alta">Alta</div>
+                            </div>
                         </div>
                     </div>
 
                     <button type="submit" class="submit-btn" id="btnSubmit">
-                        Enviar a Housezen <i class="fa-solid fa-paper-plane"></i>
+                        Enviar a Housezen
+                        <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </form>
             </div>
 
             <div id="page-incidencias" class="page">
+                <h1 class="page-title">Mis Reportes</h1>
                 <div id="incidents-list-container"></div>
             </div>
 
             <div id="page-profile" class="page">
+                <h1 class="page-title">Mi Perfil</h1>
+
                 <div class="card">
-                    <h2><span class="icon"><i class="fa-solid fa-user-check"></i></span> Mis Datos de Contacto</h2>
+                    <h2 class="card-header">
+                        <span class="icon"><i class="fa-solid fa-user-check"></i></span>
+                        Información personal
+                    </h2>
                     <div class="form-group">
-                        <label>Nombre de usuario</label>
+                        <label>Nombre completo</label>
                         <input type="text" id="profile-name" readonly>
                     </div>
                     <div class="form-group">
                         <label>Email de contacto</label>
-                        <input type="text" id="profile-email" readonly>
+                        <input type="email" id="profile-email" readonly>
                     </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-header">
+                        <span class="icon"><i class="fa-solid fa-home"></i></span>
+                        Datos de vivienda
+                    </h2>
                     <div class="form-group">
                         <label>Dirección de la vivienda</label>
                         <input type="text" id="user-address" placeholder="Ej: Calle Gran Vía 1, 4ºB" maxlength="200">
@@ -258,320 +233,20 @@
                         <label>Móvil de contacto</label>
                         <input type="tel" id="user-phone" placeholder="Ej: 600000000" maxlength="15">
                     </div>
-                    <button class="submit-btn" id="btnSave" onclick="saveUserData()">Guardar Cambios</button>
+                    <button class="submit-btn" id="btnSave" onclick="saveUserData()">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Guardar Cambios
+                    </button>
                 </div>
             </div>
         </main>
     </div>
 
-    <script>
-        const SUPABASE_URL = 'https://rplieisbxvruijvnxbya.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_bwA6-ahysrqAjTYZsgbzVw_PbZ7-BQR';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        let currentUser = null;
-        let selectedUrgency = null;
-        let lastRadioChecked = null;
-        let authInitialized = false;
-        let isSubmitting = false;
-
-// Fuerza a la app a olvidar la sesión al cerrar la pestaña o el móvil
-window.onbeforeunload = function() {
-    _supabase.auth.signOut();
-};
-
-
-
-
-        
-        // INSTALACIÓN
-        function dismissInstallBanner() {
-            document.getElementById('install-banner').style.display = 'none';
-            sessionStorage.setItem('installBannerDismissed', 'true');
-        }
-
-        function checkInstallation() {
-            const dismissed = sessionStorage.getItem('installBannerDismissed');
-            if (dismissed) return;
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const banner = document.getElementById('install-banner');
-            const instructions = document.getElementById('install-instructions');
-            if (!isStandalone && isMobile) {
-                const isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-                if (isiOS) {
-                    banner.style.display = 'flex';
-                    instructions.innerHTML = 'Pulsa <strong>Compartir</strong> <i class="fa-solid fa-arrow-up-from-bracket"></i> y luego <strong>"Añadir a pantalla de inicio"</strong>.';
-                } else {
-                    banner.style.display = 'flex';
-                    instructions.innerHTML = 'Pulsa los <strong>tres puntos</strong> <i class="fa-solid fa-ellipsis-vertical"></i> y elige <strong>"Agregar a pantalla de inicio"</strong>.';
-                }
-            }
-        }
-
-        function showToast(text) {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-text').innerText = text;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
-        // AUTH
-        async function login() {
-    // Definimos la URL exacta de tu proyecto en GitHub Pages
-    const returnUrl = "https://caserav.github.io/housezen-app/";
-
-    const { data, error } = await _supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: returnUrl, // <--- Esto es lo que faltaba
-            skipBrowserRedirect: true
-        }
-    });
-
-    if (error) {
-        showToast("Error al iniciar sesión");
-        return;
-    }
-
-    if (data.url) {
-        window.location.href = data.url;
-    }
-}
-
-      async function initializeAuth() {
-    // Al entrar, preguntamos directamente por la sesión actual
-    const { data: { session } } = await _supabase.auth.getSession();
-
-    if (session) {
-        // Si hay sesión (porque acabas de volver de Google), entras
-        await handleUserSession(session);
-    } else {
-        // Si no, vas directo al login. Sin esperas ni "vigilantes".
-        document.getElementById('login-page').style.display = 'flex';
-        document.getElementById('app-content').style.display = 'none';
-    }
-    authInitialized = true;
-}
-        
-async function logout() {
-    console.log("Intentando cerrar sesión...");
-    
-    // 1. Cerramos sesión en Supabase PRIMERO
-    // Esto invalida el token en el servidor de inmediato
-    const { error } = await _supabase.auth.signOut();
-    
-    // 2. Limpiamos TODO el rastro local, pase lo que pase con el error
-    localStorage.clear();
-    sessionStorage.clear();
-
-    if (error) {
-        console.error("Error al cerrar sesión:", error.message);
-        // Aun con error, redirigimos porque ya limpiamos el almacenamiento
-        window.location.href = "https://caserav.github.io/housezen-app/";
-    } else {
-        console.log("Sesión cerrada con éxito");
-        window.location.href = "https://caserav.github.io/housezen-app/";
-    }
-}
-
-        async function handleUserSession(session) {
-            currentUser = session.user;
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-            
-            const fullName = currentUser.user_metadata?.full_name || "Usuario";
-            document.getElementById('user-name').innerText = fullName.split(' ')[0];
-            document.getElementById('profile-name').value = fullName;
-            document.getElementById('profile-email').value = currentUser.email || '';
-            
-            const { data: profile } = await _supabase.from('perfiles').select('*').eq('id', currentUser.id).single();
-
-            if (!profile || !profile.direccion || !profile.telefono) {
-                document.getElementById('setup-modal').style.display = 'flex';
-            } else {
-                document.getElementById('inc-address').value = profile.direccion;
-                document.getElementById('inc-phone').value = profile.telefono;
-                document.getElementById('user-address').value = profile.direccion;
-                document.getElementById('user-phone').value = profile.telefono;
-            }
-        }
-
-        // FUNCIONALIDAD FORMULARIO
-        function handleRadioClick(radio) {
-            if (lastRadioChecked === radio) { radio.checked = false; lastRadioChecked = null; } 
-            else { lastRadioChecked = radio; }
-        }
-
-        async function saveUserData() {
-            const address = document.getElementById('user-address').value.trim();
-            const phone = document.getElementById('user-phone').value.trim();
-            if(!address || !phone) return showToast("Faltan datos");
-            
-            const btn = document.getElementById('btnSave');
-            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            const { error } = await _supabase.from('perfiles').upsert({ id: currentUser.id, direccion: address, telefono: phone });
-
-            if(error) { showToast("Error"); btn.disabled = false; } 
-            else {
-                document.getElementById('inc-address').value = address;
-                document.getElementById('inc-phone').value = phone;
-                btn.innerHTML = '¡Guardado! ✅'; btn.classList.add('success');
-                document.getElementById('setup-modal').style.display = 'none';
-                setTimeout(() => {
-                    btn.classList.remove('success'); btn.innerHTML = 'Guardar Cambios'; btn.disabled = false;
-                    showPage('home');
-                }, 1000);
-            }
-        }
-
-        async function handleSubmit(e) {
-            e.preventDefault();
-            if (isSubmitting) return;
-            const category = e.target.querySelector('input[name="category"]:checked');
-            const title = e.target.title.value.trim();
-            if (!category || !title || !selectedUrgency) return showToast("Revisa el formulario");
-
-            isSubmitting = true;
-            const btn = document.getElementById('btnSubmit');
-            btn.disabled = true; btn.innerHTML = 'Enviando...';
-
-            const { error } = await _supabase.from('incidencias').insert([{
-                titulo: title, descripcion: e.target.description.value.trim(),
-                categoria: category.value, urgencia: selectedUrgency,
-                direccion: document.getElementById('inc-address').value,
-                telefono: document.getElementById('inc-phone').value,
-                user_id: currentUser.id, nombre_inquilino: currentUser.user_metadata.full_name, email_inquilino: currentUser.email
-            }]);
-
-            if (error) { showToast('Error'); btn.disabled = false; isSubmitting = false; } 
-            else {
-                btn.innerHTML = '¡Enviado! ✅'; btn.classList.add('success');
-                setTimeout(() => {
-                    e.target.reset(); selectedUrgency = null;
-                    document.querySelectorAll('.priority-btn').forEach(b => b.className = 'priority-btn');
-                    btn.className = 'submit-btn'; btn.innerHTML = 'Enviar a Housezen <i class="fa-solid fa-paper-plane"></i>';
-                    btn.disabled = false; isSubmitting = false; showPage('incidencias');
-                }, 1200);
-            }
-        }
-
-        async function renderIncidents() {
-    const container = document.getElementById('incidents-list-container');
-    
-    // 1. Intentar cargar lo que ya tenemos guardado en el móvil
-    const localData = localStorage.getItem('cache_incidencias');
-    if (localData) {
-        const incidents = JSON.parse(localData);
-        dibujarIncidencias(incidents, true); // Los dibujamos con un aviso de "Modo Offline"
-    } else {
-        container.innerHTML = '<p style="text-align:center; padding:50px; color:gray;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</p>';
-    }
-
-    try {
-        // 2. Asegurar que tenemos sesión antes de pedir a Supabase
-        if (!currentUser) {
-            const { data: { session } } = await _supabase.auth.getSession();
-            if (session) currentUser = session.user;
-            else return;
-        }
-
-        // 3. Pedir datos frescos a Supabase
-        const { data, error } = await _supabase.from('incidencias')
-            .select('*')
-            .eq('user_id', currentUser.id)
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        // 4. Guardar los nuevos datos en el móvil para la próxima vez
-        localStorage.setItem('cache_incidencias', JSON.stringify(data));
-
-        // 5. Dibujar los datos frescos (quitando el aviso de offline si existía)
-        dibujarIncidencias(data, false);
-
-    } catch (err) {
-        console.error("Error de red:", err);
-        // Si hay error y no teníamos nada en caché, avisamos
-        if (!localData) {
-            container.innerHTML = '<div class="card" style="text-align:center; padding:40px;">No se pudieron cargar los reportes. Pulsa para reintentar.</div>';
-        }
-    }
-}
-
-// Función auxiliar para no repetir código
-function dibujarIncidencias(data, isOffline) {
-    const container = document.getElementById('incidents-list-container');
-    
-    if (!data || data.length === 0) {
-        container.innerHTML = '<div class="card" style="text-align:center; color:gray; padding:40px;">Sin reportes aún.</div>';
-        return;
-    }
-
-    let html = '<h2 style="margin-bottom:15px;">Historial</h2>';
-    
-    // Si estamos mostrando datos viejos, añadimos el aviso que pediste
-    if (isOffline) {
-        html += `
-            <div style="background: #FFF9C4; color: #F57F17; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 0.8rem; text-align: center; border: 1px solid #FBC02D;">
-                <i class="fa-solid fa-clock-rotate-left"></i> Mostrando datos guardados. 
-                <span onclick="renderIncidents()" style="text-decoration: underline; cursor: pointer; font-weight: bold;">Refrescar para ver nuevos</span>
-            </div>`;
-    }
-
-    html += data.map(inc => `
-        <div class="incident-item">
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <strong>${inc.titulo}</strong>
-                <span class="status-badge status-${inc.estado || 'Enviada'}">${inc.estado || 'Enviada'}</span>
-            </div>
-            <p style="font-size:0.85rem; color:var(--text-light);">${inc.descripcion}</p>
-            <div style="font-size:0.7rem; color:var(--text-light); border-top:1px solid #f0f0f0; margin-top:10px; padding-top:10px; display:flex; justify-content:space-between;">
-                <span>${new Date(inc.created_at).toLocaleDateString()}</span>
-                <span style="color:var(--primary); font-weight:800;">#${inc.categoria.toUpperCase()}</span>
-            </div>
-        </div>
-    `).join('');
-    
-    container.innerHTML = html;
-}
-
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
-
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(`page-${pageId}`).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            const nav = document.querySelector(`[data-path="${pageId}"]`);
-            if(nav) nav.classList.add('active');
-            if (pageId === 'incidencias') renderIncidents();
-            if (document.getElementById('sidebar').classList.contains('active')) toggleMenu();
-            window.scrollTo(0,0);
-        }
-
-        function goToProfile() { document.getElementById('setup-modal').style.display = 'none'; showPage('profile'); }
-
-        // EVENT LISTENERS
-        document.querySelectorAll('.priority-btn').forEach(btn => {
-            btn.onclick = function() {
-                const level = this.dataset.level;
-                selectedUrgency = (selectedUrgency === level) ? null : level;
-                document.querySelectorAll('.priority-btn').forEach(b => b.className = 'priority-btn');
-                if (selectedUrgency) this.classList.add('selected', `urgency-${level}`);
-            }
-        });
-
-        document.getElementById('incidentForm').onsubmit = handleSubmit;
-        window.onload = () => { 
-    // Damos un breve respiro para que la App instalada procese el retorno de Google
-    setTimeout(() => {
-        initializeAuth(); 
-        checkInstallation(); 
-    }, 500);
-};
-    </script>
+    <script src="js/config.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/incidents.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
