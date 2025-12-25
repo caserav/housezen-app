@@ -653,14 +653,11 @@ textarea {
 
 .otros-dropdown {
     margin-top: 16px;
-    padding: 12px;
+    padding: 16px;
     background: var(--primary-light);
     border: 2px solid var(--primary);
     border-radius: var(--radius-md);
     animation: slideDown 0.3s ease-out;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
 }
 
 @keyframes slideDown {
@@ -674,38 +671,23 @@ textarea {
     }
 }
 
-.otros-option-btn {
+.otros-dropdown select {
     width: 100%;
-    padding: 14px;
-    background: white;
+    padding: 12px;
     border: 2px solid var(--border);
     border-radius: var(--radius-sm);
     font-size: 1rem;
-    font-weight: 600;
     color: var(--text-main);
+    background: white;
     cursor: pointer;
     transition: var(--transition);
     font-family: inherit;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: 12px;
 }
 
-.otros-option-btn:hover {
-    background: var(--primary-light);
+.otros-dropdown select:focus {
+    outline: none;
     border-color: var(--primary);
-    transform: translateX(4px);
-}
-
-.otros-option-btn:active {
-    transform: scale(0.98);
-}
-
-.otros-option-btn i {
-    color: var(--primary);
-    width: 20px;
-    text-align: center;
+    box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.1);
 }
 
 .priority-group {
