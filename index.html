@@ -157,8 +157,8 @@
                                     <span>Llaves</span>
                                 </div>
                             </label>
-                            <label class="cat-option" id="otros-btn">
-                                <input type="radio" id="otros-radio" name="category" value="Otros" onclick="toggleOtrosDropdown()" required>
+                            <label class="cat-option" id="otros-btn" onclick="handleOtrosClick()">
+                                <input type="radio" id="otros-radio" name="category" value="Otros" required>
                                 <div class="cat-card">
                                     <i class="fa-solid fa-ellipsis"></i>
                                     <span>Otros</span>
@@ -167,6 +167,7 @@
                         </div>
                         <div id="otros-dropdown" class="otros-dropdown" style="display: none;">
                             <select id="otros-select" onchange="selectOtrosCategory()">
+                                <option value="">Selecciona una opción...</option>
                                 <option value="Internet">Internet</option>
                                 <option value="Calefacción">Calefacción</option>
                                 <option value="Albañilería">Albañilería</option>
@@ -175,6 +176,7 @@
                                 <option value="Ventilador">Ventilador</option>
                             </select>
                         </div>
+                        <div id="otros-selected" style="display: none; margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 6px; font-size: 14px; color: #2e7d32; border: 1px solid #81c784;"></div>
                     </div>
 
                     <div class="card">

@@ -5,6 +5,7 @@ let isSubmitting = false;
 function handleRadioClick(radio) {
     const dropdown = document.getElementById('otros-dropdown');
     const otrosRadio = document.getElementById('otros-radio');
+    const selectedDisplay = document.getElementById('otros-selected');
 
     if (lastRadioChecked === radio) {
         radio.checked = false;
@@ -20,13 +21,38 @@ function handleRadioClick(radio) {
         if (otrosRadio) {
             otrosRadio.value = 'Otros';
         }
+        if (selectedDisplay) selectedDisplay.style.display = 'none';
     }
+}
+
+function handleOtrosClick() {
+    const dropdown = document.getElementById('otros-dropdown');
+    const otrosRadio = document.getElementById('otros-radio');
+    const otrosSelect = document.getElementById('otros-select');
+    const selectedDisplay = document.getElementById('otros-selected');
+    const allRadios = document.querySelectorAll('input[name="category"]');
+
+    allRadios.forEach(radio => {
+        if (radio !== otrosRadio) {
+            radio.checked = false;
+        }
+    });
+
+    otrosRadio.checked = true;
+    lastRadioChecked = otrosRadio;
+    dropdown.style.display = 'block';
+    selectedDisplay.style.display = 'none';
+
+    setTimeout(() => {
+        otrosSelect.focus();
+    }, 100);
 }
 
 function toggleOtrosDropdown() {
     const dropdown = document.getElementById('otros-dropdown');
     const otrosRadio = document.getElementById('otros-radio');
     const otrosSelect = document.getElementById('otros-select');
+    const selectedDisplay = document.getElementById('otros-selected');
     const allRadios = document.querySelectorAll('input[name="category"]');
 
     allRadios.forEach(radio => {
@@ -39,6 +65,7 @@ function toggleOtrosDropdown() {
         dropdown.style.display = 'block';
         otrosRadio.checked = true;
         lastRadioChecked = otrosRadio;
+        selectedDisplay.style.display = 'none';
 
         setTimeout(() => {
             otrosSelect.focus();
@@ -55,11 +82,22 @@ function selectOtrosCategory() {
     const select = document.getElementById('otros-select');
     const otrosRadio = document.getElementById('otros-radio');
     const dropdown = document.getElementById('otros-dropdown');
+    const selectedDisplay = document.getElementById('otros-selected');
 
-    if (select.value) {
+    console.log('selectOtrosCategory llamada, valor:', select.value);
+
+    if (select.value && select.value !== '') {
         otrosRadio.value = select.value;
         otrosRadio.checked = true;
         lastRadioChecked = otrosRadio;
+
+        console.log('Radio actualizado:', {
+            value: otrosRadio.value,
+            checked: otrosRadio.checked
+        });
+
+        selectedDisplay.innerHTML = `<i class="fa-solid fa-circle-check"></i> Categoría: <strong>${select.value}</strong>`;
+        selectedDisplay.style.display = 'block';
         dropdown.style.display = 'none';
     }
 }
@@ -90,6 +128,14 @@ async function handleSubmit(e) {
     const urgency = document.getElementById('urgency-input').value;
     const title = e.target.title.value.trim();
     const description = e.target.description.value.trim();
+
+    console.log('Validación del formulario:', {
+        category: category ? category.value : 'NO SELECCIONADO',
+        categoryChecked: category ? 'SÍ' : 'NO',
+        urgency,
+        title,
+        description
+    });
 
     if (!category || !urgency || !title || !description) {
         alert('Completa todos los campos: Categoría, Urgencia, Título y Descripción');
@@ -133,9 +179,11 @@ async function handleSubmit(e) {
             const dropdown = document.getElementById('otros-dropdown');
             const otrosSelect = document.getElementById('otros-select');
             const otrosRadio = document.getElementById('otros-radio');
+            const selectedDisplay = document.getElementById('otros-selected');
             if (dropdown) dropdown.style.display = 'none';
             if (otrosSelect) otrosSelect.selectedIndex = 0;
             if (otrosRadio) otrosRadio.value = 'Otros';
+            if (selectedDisplay) selectedDisplay.style.display = 'none';
 
             btn.className = 'submit-btn';
             btn.innerHTML = 'Enviar a Housezen <i class="fa-solid fa-paper-plane"></i>';
