@@ -32,50 +32,76 @@ async function logout() {
 }
 
 async function initializeAuth() {
-    _supabase.auth.onAuthStateChange((event, session) => {
+    _supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
-            handleUserSession(session);
-        } else if (event === 'SIGNED_OUT') {
+            await handleUserSession(session);
+        } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
             document.getElementById('login-page').style.display = 'flex';
             document.getElementById('app-content').style.display = 'none';
+            document.getElementById('setup-modal').style.display = 'none';
         }
     });
 
-    const { data: { session } } = await _supabase.auth.getSession();
+    try {
+        const { data: { session }, error } = await _supabase.auth.getSession();
 
-    if (session) {
-        await handleUserSession(session);
-    } else {
+        if (error) {
+            console.error('Error getting session:', error);
+            document.getElementById('login-page').style.display = 'flex';
+            document.getElementById('app-content').style.display = 'none';
+            return;
+        }
+
+        if (session) {
+            await handleUserSession(session);
+        } else {
+            document.getElementById('login-page').style.display = 'flex';
+            document.getElementById('app-content').style.display = 'none';
+        }
+    } catch (err) {
+        console.error('Error initializing auth:', err);
         document.getElementById('login-page').style.display = 'flex';
         document.getElementById('app-content').style.display = 'none';
     }
+
     authInitialized = true;
 }
 
 async function handleUserSession(session) {
-    currentUser = session.user;
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('app-content').style.display = 'block';
+    try {
+        currentUser = session.user;
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
 
-    const fullName = currentUser.user_metadata?.full_name || "Usuario";
-    const firstName = fullName.split(' ')[0];
+        const fullName = currentUser.user_metadata?.full_name || "Usuario";
+        const firstName = fullName.split(' ')[0];
 
-    document.getElementById('user-name').innerText = firstName;
-    document.getElementById('profile-name').value = fullName;
-    document.getElementById('profile-email').value = currentUser.email || '';
+        document.getElementById('user-name').innerText = firstName;
+        document.getElementById('profile-name').value = fullName;
+        document.getElementById('profile-email').value = currentUser.email || '';
 
-    const { data: profile } = await _supabase
-        .from('perfiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .maybeSingle();
+        const { data: profile, error } = await _supabase
+            .from('perfiles')
+            .select('*')
+            .eq('id', currentUser.id)
+            .maybeSingle();
 
-    if (!profile || !profile.direccion || !profile.telefono) {
+        if (error) {
+            console.error('Error loading profile:', error);
+        }
+
+        if (!profile || !profile.direccion || !profile.telefono) {
+            document.getElementById('setup-modal').style.display = 'flex';
+        } else {
+            document.getElementById('inc-address').value = profile.direccion;
+            document.getElementById('inc-phone').value = profile.telefono;
+            document.getElementById('user-address').value = profile.direccion;
+            document.getElementById('user-phone').value = profile.telefono;
+        }
+    } catch (err) {
+        console.error('Error in handleUserSession:', err);
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('app-content').style.display = 'block';
         document.getElementById('setup-modal').style.display = 'flex';
-    } else {
-        document.getElementById('inc-address').value = profile.direccion;
-        document.getElementById('inc-phone').value = profile.telefono;
-        document.getElementById('user-address').value = profile.direccion;
-        document.getElementById('user-phone').value = profile.telefono;
     }
 }
