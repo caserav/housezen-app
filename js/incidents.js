@@ -30,15 +30,18 @@ function setupPriorityButtons() {
 }
 
 async function handleSubmit(e) {
-    if (!e.target.checkValidity()) {
-        return;
-    }
-
     e.preventDefault();
     if (isSubmitting) return;
 
     const category = e.target.querySelector('input[name="category"]:checked');
+    const urgency = document.getElementById('urgency-input').value;
     const title = e.target.title.value.trim();
+    const description = e.target.description.value.trim();
+
+    if (!category || !urgency || !title || !description) {
+        showToast('Completa todos los campos', 'error');
+        return;
+    }
 
     isSubmitting = true;
     const btn = document.getElementById('btnSubmit');
