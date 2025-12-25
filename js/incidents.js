@@ -6,62 +6,35 @@ function handleRadioClick(radio) {
     const dropdown = document.getElementById('otros-dropdown');
     const otrosRadio = document.getElementById('otros-radio');
     const selectedDisplay = document.getElementById('otros-selected');
+    const otrosSelect = document.getElementById('otros-select');
 
     if (lastRadioChecked === radio) {
         radio.checked = false;
         lastRadioChecked = null;
-    } else {
-        lastRadioChecked = radio;
-    }
 
-    if (radio !== otrosRadio && dropdown) {
-        dropdown.style.display = 'none';
-        const otrosSelect = document.getElementById('otros-select');
-        if (otrosSelect) otrosSelect.selectedIndex = 0;
-        if (otrosRadio) {
+        if (radio === otrosRadio) {
+            dropdown.style.display = 'none';
+            selectedDisplay.style.display = 'none';
+            if (otrosSelect) otrosSelect.selectedIndex = 0;
             otrosRadio.value = 'Otros';
         }
-        if (selectedDisplay) selectedDisplay.style.display = 'none';
-    }
-}
+    } else {
+        lastRadioChecked = radio;
 
-function handleOtrosClick(event) {
-    console.log('handleOtrosClick llamada');
-
-    const dropdown = document.getElementById('otros-dropdown');
-    const otrosRadio = document.getElementById('otros-radio');
-    const otrosSelect = document.getElementById('otros-select');
-    const selectedDisplay = document.getElementById('otros-selected');
-    const allRadios = document.querySelectorAll('input[name="category"]');
-
-    if (lastRadioChecked === otrosRadio && otrosRadio.checked) {
-        event.preventDefault();
-        otrosRadio.checked = false;
-        lastRadioChecked = null;
-        dropdown.style.display = 'none';
-        selectedDisplay.style.display = 'none';
-        otrosSelect.selectedIndex = 0;
-        otrosRadio.value = 'Otros';
-        return;
-    }
-
-    allRadios.forEach(radio => {
-        if (radio !== otrosRadio) {
-            radio.checked = false;
+        if (radio === otrosRadio) {
+            dropdown.style.display = 'block';
+            selectedDisplay.style.display = 'none';
+            if (otrosSelect) otrosSelect.selectedIndex = 0;
+            setTimeout(() => {
+                otrosSelect.focus();
+            }, 100);
+        } else {
+            if (dropdown) dropdown.style.display = 'none';
+            if (otrosSelect) otrosSelect.selectedIndex = 0;
+            if (otrosRadio) otrosRadio.value = 'Otros';
+            if (selectedDisplay) selectedDisplay.style.display = 'none';
         }
-    });
-
-    otrosRadio.checked = true;
-    lastRadioChecked = otrosRadio;
-    dropdown.style.display = 'block';
-    selectedDisplay.style.display = 'none';
-    otrosSelect.selectedIndex = 0;
-
-    console.log('Dropdown mostrado:', dropdown.style.display);
-
-    setTimeout(() => {
-        otrosSelect.focus();
-    }, 100);
+    }
 }
 
 function toggleOtrosDropdown() {
