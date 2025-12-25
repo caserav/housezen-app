@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=5">
+    <link rel="stylesheet" href="styles.css?v=6">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -130,7 +130,7 @@
                         </h2>
                         <div class="category-grid">
                             <label class="cat-option">
-                                <input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)">
+                                <input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)" required>
                                 <div class="cat-card">
                                     <i class="fa-solid fa-droplet"></i>
                                     <span>Fontanería</span>
@@ -187,6 +187,7 @@
                                 <div class="priority-btn" data-level="media">Media</div>
                                 <div class="priority-btn" data-level="alta">Alta</div>
                             </div>
+                            <input type="hidden" name="urgency" id="urgency-input" required>
                         </div>
                     </div>
 
@@ -242,11 +243,11 @@
         </main>
     </div>
 
-    <script src="js/config.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/profile.js"></script>
-    <script src="js/incidents.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/config.js?v=1"></script>
+    <script src="js/ui.js?v=1"></script>
+    <script src="js/auth.js?v=1"></script>
+    <script src="js/profile.js?v=1"></script>
+    <script src="js/incidents.js?v=2"></script>
+    <script src="js/app.js?v=1"></script>
 </body>
 </html>

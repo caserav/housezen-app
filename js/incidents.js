@@ -17,8 +17,13 @@ function setupPriorityButtons() {
             const level = this.dataset.level;
             selectedUrgency = (selectedUrgency === level) ? null : level;
             document.querySelectorAll('.priority-btn').forEach(b => b.className = 'priority-btn');
+
+            const urgencyInput = document.getElementById('urgency-input');
             if (selectedUrgency) {
                 this.classList.add('selected', `urgency-${level}`);
+                urgencyInput.value = selectedUrgency;
+            } else {
+                urgencyInput.value = '';
             }
         };
     });
@@ -30,11 +35,6 @@ async function handleSubmit(e) {
 
     const category = e.target.querySelector('input[name="category"]:checked');
     const title = e.target.title.value.trim();
-
-    if (!category || !title || !selectedUrgency) {
-        showToast("Revisa el formulario");
-        return;
-    }
 
     isSubmitting = true;
     const btn = document.getElementById('btnSubmit');
@@ -67,6 +67,7 @@ async function handleSubmit(e) {
             selectedUrgency = null;
             lastRadioChecked = null;
             document.querySelectorAll('.priority-btn').forEach(b => b.className = 'priority-btn');
+            document.getElementById('urgency-input').value = '';
             btn.className = 'submit-btn';
             btn.innerHTML = 'Enviar a Housezen <i class="fa-solid fa-paper-plane"></i>';
             btn.disabled = false;
