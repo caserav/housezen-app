@@ -25,6 +25,7 @@ function handleRadioClick(radio) {
 function toggleOtrosDropdown() {
     const dropdown = document.getElementById('otros-dropdown');
     const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+    const otrosSelect = document.getElementById('otros-select');
     const allRadios = document.querySelectorAll('input[name="category"]');
 
     allRadios.forEach(radio => {
@@ -37,9 +38,14 @@ function toggleOtrosDropdown() {
         dropdown.style.display = 'block';
         otrosRadio.checked = true;
         lastRadioChecked = otrosRadio;
+
+        setTimeout(() => {
+            otrosSelect.focus();
+            otrosSelect.click();
+        }, 100);
     } else {
         dropdown.style.display = 'none';
-        document.getElementById('otros-select').value = '';
+        otrosSelect.value = '';
     }
 }
 
