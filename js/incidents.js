@@ -4,7 +4,7 @@ let isSubmitting = false;
 
 function handleRadioClick(radio) {
     const dropdown = document.getElementById('otros-dropdown');
-    const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+    const otrosRadio = document.getElementById('otros-radio');
 
     if (lastRadioChecked === radio) {
         radio.checked = false;
@@ -25,7 +25,7 @@ function handleRadioClick(radio) {
 
 function toggleOtrosDropdown() {
     const dropdown = document.getElementById('otros-dropdown');
-    const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+    const otrosRadio = document.getElementById('otros-radio');
     const otrosSelect = document.getElementById('otros-select');
     const allRadios = document.querySelectorAll('input[name="category"]');
 
@@ -53,7 +53,7 @@ function toggleOtrosDropdown() {
 
 function selectOtrosCategory() {
     const select = document.getElementById('otros-select');
-    const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+    const otrosRadio = document.getElementById('otros-radio');
     const dropdown = document.getElementById('otros-dropdown');
 
     if (select.value) {
@@ -132,7 +132,7 @@ async function handleSubmit(e) {
 
             const dropdown = document.getElementById('otros-dropdown');
             const otrosSelect = document.getElementById('otros-select');
-            const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+            const otrosRadio = document.getElementById('otros-radio');
             if (dropdown) dropdown.style.display = 'none';
             if (otrosSelect) otrosSelect.selectedIndex = 0;
             if (otrosRadio) otrosRadio.value = 'Otros';
