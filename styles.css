@@ -836,8 +836,4 @@ textarea {
     .cat-card i {
         font-size: 1.5rem;
     }
-
-    .priority-group {
-        flex-direction: column;
-    }
 }
