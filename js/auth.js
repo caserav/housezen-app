@@ -4,18 +4,13 @@ async function login() {
     const { data, error } = await _supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: returnUrl,
-            skipBrowserRedirect: true
+            redirectTo: returnUrl
         }
     });
 
     if (error) {
         showToast("Error al iniciar sesión");
         return;
-    }
-
-    if (data.url) {
-        window.location.href = data.url;
     }
 }
 
@@ -37,6 +32,15 @@ async function logout() {
 }
 
 async function initializeAuth() {
+    _supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+            handleUserSession(session);
+        } else if (event === 'SIGNED_OUT') {
+            document.getElementById('login-page').style.display = 'flex';
+            document.getElementById('app-content').style.display = 'none';
+        }
+    });
+
     const { data: { session } } = await _supabase.auth.getSession();
 
     if (session) {
@@ -64,7 +68,7 @@ async function handleUserSession(session) {
         .from('perfiles')
         .select('*')
         .eq('id', currentUser.id)
-        .single();
+        .maybeSingle();
 
     if (!profile || !profile.direccion || !profile.telefono) {
         document.getElementById('setup-modal').style.display = 'flex';
@@ -75,7 +79,3 @@ async function handleUserSession(session) {
         document.getElementById('user-phone').value = profile.telefono;
     }
 }
-
-window.onbeforeunload = function() {
-    _supabase.auth.signOut();
-};
