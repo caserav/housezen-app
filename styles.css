@@ -622,12 +622,21 @@ textarea {
     height: 100px;
     width: 100%;
     overflow: hidden;
+    box-sizing: border-box;
+}
+
+.cat-card span {
+    flex-shrink: 0;
+    line-height: 1.2;
+    max-width: 100%;
+    word-wrap: break-word;
 }
 
 .cat-card i {
     font-size: 1.8rem;
     color: var(--text-light);
     transition: var(--transition);
+    flex-shrink: 0;
 }
 
 .cat-option input:checked + .cat-card {
