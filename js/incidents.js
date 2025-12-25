@@ -3,11 +3,54 @@ let lastRadioChecked = null;
 let isSubmitting = false;
 
 function handleRadioClick(radio) {
+    const dropdown = document.getElementById('otros-dropdown');
+    const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+
     if (lastRadioChecked === radio) {
         radio.checked = false;
         lastRadioChecked = null;
     } else {
         lastRadioChecked = radio;
+    }
+
+    if (radio !== otrosRadio && dropdown) {
+        dropdown.style.display = 'none';
+        document.getElementById('otros-select').value = '';
+        if (otrosRadio) {
+            otrosRadio.value = 'Otros';
+        }
+    }
+}
+
+function toggleOtrosDropdown() {
+    const dropdown = document.getElementById('otros-dropdown');
+    const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+    const allRadios = document.querySelectorAll('input[name="category"]');
+
+    allRadios.forEach(radio => {
+        if (radio !== otrosRadio) {
+            radio.checked = false;
+        }
+    });
+
+    if (dropdown.style.display === 'none' || dropdown.style.display === '') {
+        dropdown.style.display = 'block';
+        otrosRadio.checked = true;
+        lastRadioChecked = otrosRadio;
+    } else {
+        dropdown.style.display = 'none';
+        document.getElementById('otros-select').value = '';
+    }
+}
+
+function selectOtrosCategory() {
+    const select = document.getElementById('otros-select');
+    const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+
+    if (select.value) {
+        otrosRadio.value = select.value;
+        otrosRadio.checked = true;
+        lastRadioChecked = otrosRadio;
     }
 }
 
@@ -76,6 +119,14 @@ async function handleSubmit(e) {
             lastRadioChecked = null;
             document.querySelectorAll('.priority-btn').forEach(b => b.className = 'priority-btn');
             document.getElementById('urgency-input').value = '';
+
+            const dropdown = document.getElementById('otros-dropdown');
+            const otrosSelect = document.getElementById('otros-select');
+            const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+            if (dropdown) dropdown.style.display = 'none';
+            if (otrosSelect) otrosSelect.value = '';
+            if (otrosRadio) otrosRadio.value = 'Otros';
+
             btn.className = 'submit-btn';
             btn.innerHTML = 'Enviar a Housezen <i class="fa-solid fa-paper-plane"></i>';
             btn.disabled = false;

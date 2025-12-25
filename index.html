@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="stylesheet" href="styles.css?v=7">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -157,13 +157,25 @@
                                     <span>Llaves</span>
                                 </div>
                             </label>
-                            <label class="cat-option">
-                                <input type="radio" name="category" value="Otros" onclick="handleRadioClick(this)" required>
+                            <label class="cat-option" id="otros-btn">
+                                <input type="radio" name="category" value="Otros" onclick="toggleOtrosDropdown()" required>
                                 <div class="cat-card">
                                     <i class="fa-solid fa-ellipsis"></i>
                                     <span>Otros</span>
                                 </div>
                             </label>
+                        </div>
+                        <div id="otros-dropdown" class="otros-dropdown" style="display: none;">
+                            <label>Selecciona una categoría:</label>
+                            <select id="otros-select" onchange="selectOtrosCategory()">
+                                <option value="">-- Elige una opción --</option>
+                                <option value="Internet">Internet</option>
+                                <option value="Calefacción">Calefacción</option>
+                                <option value="Albañilería">Albañilería</option>
+                                <option value="Aire Acondicionado">Aire Acondicionado</option>
+                                <option value="Televisión">Televisión</option>
+                                <option value="Ventilador">Ventilador</option>
+                            </select>
                         </div>
                     </div>
 
@@ -247,7 +259,7 @@
     <script src="js/ui.js?v=1"></script>
     <script src="js/auth.js?v=3"></script>
     <script src="js/profile.js?v=1"></script>
-    <script src="js/incidents.js?v=3"></script>
+    <script src="js/incidents.js?v=4"></script>
     <script src="js/app.js?v=1"></script>
 </body>
 </html>
