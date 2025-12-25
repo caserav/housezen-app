@@ -25,12 +25,25 @@ function handleRadioClick(radio) {
     }
 }
 
-function handleOtrosClick() {
+function handleOtrosClick(event) {
+    console.log('handleOtrosClick llamada');
+
     const dropdown = document.getElementById('otros-dropdown');
     const otrosRadio = document.getElementById('otros-radio');
     const otrosSelect = document.getElementById('otros-select');
     const selectedDisplay = document.getElementById('otros-selected');
     const allRadios = document.querySelectorAll('input[name="category"]');
+
+    if (lastRadioChecked === otrosRadio && otrosRadio.checked) {
+        event.preventDefault();
+        otrosRadio.checked = false;
+        lastRadioChecked = null;
+        dropdown.style.display = 'none';
+        selectedDisplay.style.display = 'none';
+        otrosSelect.selectedIndex = 0;
+        otrosRadio.value = 'Otros';
+        return;
+    }
 
     allRadios.forEach(radio => {
         if (radio !== otrosRadio) {
@@ -42,6 +55,9 @@ function handleOtrosClick() {
     lastRadioChecked = otrosRadio;
     dropdown.style.display = 'block';
     selectedDisplay.style.display = 'none';
+    otrosSelect.selectedIndex = 0;
+
+    console.log('Dropdown mostrado:', dropdown.style.display);
 
     setTimeout(() => {
         otrosSelect.focus();
