@@ -15,7 +15,6 @@ function handleRadioClick(radio) {
 
     if (radio !== otrosRadio && dropdown) {
         dropdown.style.display = 'none';
-        document.getElementById('otros-select').value = '';
         if (otrosRadio) {
             otrosRadio.value = 'Otros';
         }
@@ -25,7 +24,6 @@ function handleRadioClick(radio) {
 function toggleOtrosDropdown() {
     const dropdown = document.getElementById('otros-dropdown');
     const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
-    const otrosSelect = document.getElementById('otros-select');
     const allRadios = document.querySelectorAll('input[name="category"]');
 
     allRadios.forEach(radio => {
@@ -38,26 +36,20 @@ function toggleOtrosDropdown() {
         dropdown.style.display = 'block';
         otrosRadio.checked = true;
         lastRadioChecked = otrosRadio;
-
-        setTimeout(() => {
-            otrosSelect.focus();
-            otrosSelect.click();
-        }, 100);
     } else {
         dropdown.style.display = 'none';
-        otrosSelect.value = '';
+        otrosRadio.value = 'Otros';
     }
 }
 
-function selectOtrosCategory() {
-    const select = document.getElementById('otros-select');
+function selectOtrosCategory(categoryValue) {
     const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
+    const dropdown = document.getElementById('otros-dropdown');
 
-    if (select.value) {
-        otrosRadio.value = select.value;
-        otrosRadio.checked = true;
-        lastRadioChecked = otrosRadio;
-    }
+    otrosRadio.value = categoryValue;
+    otrosRadio.checked = true;
+    lastRadioChecked = otrosRadio;
+    dropdown.style.display = 'none';
 }
 
 function setupPriorityButtons() {
@@ -127,10 +119,8 @@ async function handleSubmit(e) {
             document.getElementById('urgency-input').value = '';
 
             const dropdown = document.getElementById('otros-dropdown');
-            const otrosSelect = document.getElementById('otros-select');
             const otrosRadio = document.querySelector('input[name="category"][value="Otros"]');
             if (dropdown) dropdown.style.display = 'none';
-            if (otrosSelect) otrosSelect.value = '';
             if (otrosRadio) otrosRadio.value = 'Otros';
 
             btn.className = 'submit-btn';

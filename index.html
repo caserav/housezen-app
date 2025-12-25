@@ -166,15 +166,24 @@
                             </label>
                         </div>
                         <div id="otros-dropdown" class="otros-dropdown" style="display: none;">
-                            <select id="otros-select" onchange="selectOtrosCategory()">
-                                <option value="">-- Elige una opción --</option>
-                                <option value="Internet">Internet</option>
-                                <option value="Calefacción">Calefacción</option>
-                                <option value="Albañilería">Albañilería</option>
-                                <option value="Aire Acondicionado">Aire Acondicionado</option>
-                                <option value="Televisión">Televisión</option>
-                                <option value="Ventilador">Ventilador</option>
-                            </select>
+                            <button type="button" class="otros-option-btn" onclick="selectOtrosCategory('Internet')">
+                                <i class="fa-solid fa-wifi"></i> Internet
+                            </button>
+                            <button type="button" class="otros-option-btn" onclick="selectOtrosCategory('Calefacción')">
+                                <i class="fa-solid fa-fire"></i> Calefacción
+                            </button>
+                            <button type="button" class="otros-option-btn" onclick="selectOtrosCategory('Albañilería')">
+                                <i class="fa-solid fa-trowel-bricks"></i> Albañilería
+                            </button>
+                            <button type="button" class="otros-option-btn" onclick="selectOtrosCategory('Aire Acondicionado')">
+                                <i class="fa-solid fa-fan"></i> Aire Acondicionado
+                            </button>
+                            <button type="button" class="otros-option-btn" onclick="selectOtrosCategory('Televisión')">
+                                <i class="fa-solid fa-tv"></i> Televisión
+                            </button>
+                            <button type="button" class="otros-option-btn" onclick="selectOtrosCategory('Ventilador')">
+                                <i class="fa-solid fa-wind"></i> Ventilador
+                            </button>
                         </div>
                     </div>
 
