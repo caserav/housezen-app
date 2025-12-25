@@ -30,6 +30,10 @@ function setupPriorityButtons() {
 }
 
 async function handleSubmit(e) {
+    if (!e.target.checkValidity()) {
+        return;
+    }
+
     e.preventDefault();
     if (isSubmitting) return;
 
