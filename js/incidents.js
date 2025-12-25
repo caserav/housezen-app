@@ -8,16 +8,18 @@ function handleRadioClick(radio) {
     const selectedDisplay = document.getElementById('otros-selected');
     const otrosSelect = document.getElementById('otros-select');
 
-    if (lastRadioChecked === radio) {
-        radio.checked = false;
-        lastRadioChecked = null;
+    if (lastRadioChecked === radio && radio.checked) {
+        setTimeout(() => {
+            radio.checked = false;
+            lastRadioChecked = null;
 
-        if (radio === otrosRadio && dropdown) {
-            dropdown.style.display = 'none';
-            if (selectedDisplay) selectedDisplay.style.display = 'none';
-            if (otrosSelect) otrosSelect.selectedIndex = 0;
-            otrosRadio.value = 'Otros';
-        }
+            if (radio === otrosRadio && dropdown) {
+                dropdown.style.display = 'none';
+                if (selectedDisplay) selectedDisplay.style.display = 'none';
+                if (otrosSelect) otrosSelect.selectedIndex = 0;
+                otrosRadio.value = 'Otros';
+            }
+        }, 0);
     } else {
         lastRadioChecked = radio;
 
