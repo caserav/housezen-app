@@ -35,6 +35,27 @@ async function handleSubmit(e) {
 
     const category = e.target.querySelector('input[name="category"]:checked');
     const title = e.target.title.value.trim();
+    const description = e.target.description.value.trim();
+
+    if (!title) {
+        showToast('Por favor, completa el resumen de la incidencia');
+        return;
+    }
+
+    if (!category) {
+        showToast('Por favor, selecciona una categoría');
+        return;
+    }
+
+    if (!selectedUrgency) {
+        showToast('Por favor, selecciona el nivel de urgencia');
+        return;
+    }
+
+    if (!description) {
+        showToast('Por favor, escribe una descripción detallada');
+        return;
+    }
 
     isSubmitting = true;
     const btn = document.getElementById('btnSubmit');
@@ -43,7 +64,7 @@ async function handleSubmit(e) {
 
     const { error } = await _supabase.from('incidencias').insert([{
         titulo: title,
-        descripcion: e.target.description.value.trim(),
+        descripcion: description,
         categoria: category.value,
         urgencia: selectedUrgency,
         direccion: document.getElementById('inc-address').value,
