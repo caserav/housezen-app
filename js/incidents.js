@@ -39,7 +39,7 @@ async function handleSubmit(e) {
     const description = e.target.description.value.trim();
 
     if (!category || !urgency || !title || !description) {
-        showToast('Completa todos los campos', 'error');
+        showToast('Completa todos los campos');
         return;
     }
 
