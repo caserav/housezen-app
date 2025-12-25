@@ -12,21 +12,21 @@ function handleRadioClick(radio) {
         radio.checked = false;
         lastRadioChecked = null;
 
-        if (radio === otrosRadio) {
+        if (radio === otrosRadio && dropdown) {
             dropdown.style.display = 'none';
-            selectedDisplay.style.display = 'none';
+            if (selectedDisplay) selectedDisplay.style.display = 'none';
             if (otrosSelect) otrosSelect.selectedIndex = 0;
             otrosRadio.value = 'Otros';
         }
     } else {
         lastRadioChecked = radio;
 
-        if (radio === otrosRadio) {
+        if (radio === otrosRadio && dropdown) {
             dropdown.style.display = 'block';
-            selectedDisplay.style.display = 'none';
+            if (selectedDisplay) selectedDisplay.style.display = 'none';
             if (otrosSelect) otrosSelect.selectedIndex = 0;
             setTimeout(() => {
-                otrosSelect.focus();
+                if (otrosSelect) otrosSelect.focus();
             }, 100);
         } else {
             if (dropdown) dropdown.style.display = 'none';
