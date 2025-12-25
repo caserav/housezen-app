@@ -130,7 +130,7 @@
                         </h2>
                         <div class="category-grid">
                             <label class="cat-option">
-                                <input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)">
+                                <input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)" required>
                                 <div class="cat-card">
                                     <i class="fa-solid fa-droplet"></i>
                                     <span>Fontanería</span>
@@ -174,11 +174,11 @@
                         </h2>
                         <div class="form-group">
                             <label>Breve resumen</label>
-                            <input type="text" name="title" placeholder="Resume tu incidencia" maxlength="100">
+                            <input type="text" name="title" placeholder="Resume tu incidencia" maxlength="100" required>
                         </div>
                         <div class="form-group">
                             <label>Descripción detallada</label>
-                            <textarea name="description" rows="4" placeholder="Explícanos más sobre la incidencia..." maxlength="500"></textarea>
+                            <textarea name="description" rows="4" placeholder="Explícanos más sobre la incidencia..." maxlength="500" required></textarea>
                         </div>
                         <div class="form-group">
                             <label>Nivel de Urgencia</label>
@@ -187,7 +187,7 @@
                                 <div class="priority-btn" data-level="media">Media</div>
                                 <div class="priority-btn" data-level="alta">Alta</div>
                             </div>
-                            <input type="hidden" name="urgency" id="urgency-input">
+                            <input type="hidden" name="urgency" id="urgency-input" required>
                         </div>
                     </div>
 
