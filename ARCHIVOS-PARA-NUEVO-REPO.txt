@@ -1,0 +1,42 @@
+ARCHIVOS DE LA APLICACIÓN DEL CASERO
+======================================
+
+Sube estos archivos a tu nuevo repositorio de GitHub:
+
+ARCHIVOS PRINCIPALES:
+- landlord-index.html (HTML principal)
+- landlord-styles.css (Estilos con tema teal)
+- landlord-manifest.json (Configuración PWA)
+- LANDLORD-README.md (Documentación)
+
+CARPETA landlord-js/ (crear esta carpeta y subir todos estos archivos dentro):
+- landlord-js/config.js
+- landlord-js/auth.js
+- landlord-js/ui.js
+- landlord-js/dashboard.js
+- landlord-js/incidents.js
+- landlord-js/properties.js
+- landlord-js/tecnicos.js
+- landlord-js/profile.js
+- landlord-js/app.js
+
+IMPORTANTE:
+- La base de datos ya está configurada y compartida con la app de inquilinos
+- Ambas apps usan la misma instancia de Supabase
+- NO necesitas configurar nada más en la base de datos
+- El login es con Google (igual que la app de inquilinos)
+
+PARA PROBAR LA APP:
+1. Sube todos los archivos al nuevo repositorio
+2. Abre landlord-index.html en tu navegador o despliega en tu servidor
+3. Inicia sesión con Google
+4. Empieza añadiendo propiedades en "Mis Propiedades"
+5. Vincula los emails de tus inquilinos
+6. Verás las incidencias que ellos reporten desde su app
+
+URL DE LA BASE DE DATOS:
+https://rplieisbxvruijvnxbya.supabase.co
+
+La configuración está en landlord-js/config.js
+
+¡Ya está todo listo para usar!

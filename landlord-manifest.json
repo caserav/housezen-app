@@ -1,0 +1,17 @@
+{
+  "name": "Housezen Admin",
+  "short_name": "Housezen Admin",
+  "description": "Gestión Profesional de Propiedades y Seguimiento de Incidencias",
+  "start_url": "/landlord-index.html",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#14B8A6",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
