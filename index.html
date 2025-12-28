@@ -56,13 +56,13 @@
     <div id="setup-modal">
         <div class="modal-card">
             <div class="modal-icon">
-                <i class="fa-solid fa-user-pen"></i>
+                <i class="fa-solid fa-house-lock"></i>
             </div>
-            <h3>Perfil Incompleto</h3>
-            <p>Necesitamos tu dirección y teléfono para poder enviar técnicos a tu vivienda.</p>
-            <button class="submit-btn" onclick="goToProfile()">
+            <h3>Vincular Vivienda</h3>
+            <p>Introduce el código que te ha facilitado tu casero para poder reportar incidencias.</p>
+            <button class="submit-btn" onclick="showPage('profile'); document.getElementById('setup-modal').style.display='none';">
                 <i class="fa-solid fa-arrow-right"></i>
-                Completar ahora
+                Completar Perfil ahora
             </button>
         </div>
     </div>
@@ -115,11 +115,11 @@
                         </h2>
                         <div class="form-group">
                             <label>Dirección</label>
-                            <input type="text" id="inc-address" readonly>
+                            <input type="text" id="inc-address" readonly placeholder="Completa tu perfil para vincular">
                         </div>
                         <div class="form-group">
-                            <label>Teléfono</label>
-                            <input type="text" id="inc-phone" readonly>
+                            <label>Teléfono de contacto</label>
+                            <input type="text" id="inc-phone" readonly placeholder="Añade tu móvil en perfil">
                         </div>
                     </div>
 
@@ -130,53 +130,51 @@
                         </h2>
                         <div class="category-grid">
                             <label class="cat-option">
-                                <input type="radio" name="category" value="Fontanería" onclick="handleRadioClick(this)" required>
+                                <input type="radio" name="category" value="Fontanería" required>
                                 <div class="cat-card">
                                     <i class="fa-solid fa-droplet"></i>
                                     <span>Fontanería</span>
                                 </div>
                             </label>
                             <label class="cat-option">
-                                <input type="radio" name="category" value="Electricidad" onclick="handleRadioClick(this)" required>
+                                <input type="radio" name="category" value="Electricidad" required>
                                 <div class="cat-card">
                                     <i class="fa-solid fa-bolt-lightning"></i>
                                     <span>Luz</span>
                                 </div>
                             </label>
                             <label class="cat-option">
-                                <input type="radio" name="category" value="Electrodomésticos" onclick="handleRadioClick(this)" required>
+                                <input type="radio" name="category" value="Electrodomésticos" required>
                                 <div class="cat-card">
                                     <i class="fa-solid fa-plug"></i>
-                                    <span>Electrodomésticos</span>
+                                    <span>Electro</span>
                                 </div>
                             </label>
                             <label class="cat-option">
-                                <input type="radio" name="category" value="Cerrajería" onclick="handleRadioClick(this)" required>
+                                <input type="radio" name="category" value="Cerrajería" required>
                                 <div class="cat-card">
                                     <i class="fa-solid fa-key"></i>
                                     <span>Llaves</span>
                                 </div>
                             </label>
                             <label class="cat-option" id="otros-btn">
-                                <input type="radio" id="otros-radio" name="category" value="Otros" onclick="handleRadioClick(this)" required>
+                                <input type="radio" id="otros-radio" name="category" value="Otros" required>
                                 <div class="cat-card">
                                     <i class="fa-solid fa-ellipsis"></i>
                                     <span>Otros</span>
                                 </div>
                             </label>
                         </div>
-                        <div id="otros-dropdown" class="otros-dropdown" style="display: none;">
-                            <select id="otros-select" onchange="selectOtrosCategory()">
+                        <div id="otros-dropdown" class="otros-dropdown" style="display: none; margin-top: 15px;">
+                            <select id="otros-select">
                                 <option value="">Selecciona una opción...</option>
                                 <option value="Internet">Internet</option>
                                 <option value="Calefacción">Calefacción</option>
                                 <option value="Albañilería">Albañilería</option>
                                 <option value="Aire Acondicionado">Aire Acondicionado</option>
                                 <option value="Televisión">Televisión</option>
-                                <option value="Ventilador">Ventilador</option>
                             </select>
                         </div>
-                        <div id="otros-selected" style="display: none; margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 6px; font-size: 14px; color: #2e7d32; border: 1px solid #81c784;"></div>
                     </div>
 
                     <div class="card">
@@ -186,14 +184,14 @@
                         </h2>
                         <div class="form-group">
                             <label>Breve resumen</label>
-                            <input type="text" name="title" placeholder="Resume tu incidencia" maxlength="100" required>
+                            <input type="text" name="title" placeholder="Ej: Fuga en el fregadero" maxlength="100" required>
                         </div>
                         <div class="form-group">
                             <label>Descripción detallada</label>
-                            <textarea name="description" rows="4" placeholder="Explícanos más sobre la incidencia..." maxlength="500" required></textarea>
+                            <textarea name="description" rows="4" placeholder="Explícanos qué ocurre..." maxlength="500" required></textarea>
                         </div>
                         <div class="form-group">
-                            <label>Nivel de Urgencia</label>
+                            <label>Urgencia</label>
                             <div class="priority-group">
                                 <div class="priority-btn" data-level="baja">Baja</div>
                                 <div class="priority-btn" data-level="media">Media</div>
@@ -204,7 +202,7 @@
                     </div>
 
                     <button type="submit" class="submit-btn" id="btnSubmit">
-                        Enviar a Housezen
+                        Enviar Reporte
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </form>
@@ -235,21 +233,29 @@
 
                 <div class="card">
                     <h2 class="card-header">
-                        <span class="icon"><i class="fa-solid fa-home"></i></span>
-                        Datos de vivienda
+                        <span class="icon"><i class="fa-solid fa-house-medical"></i></span>
+                        Vincular Vivienda
                     </h2>
-                   <div class="form-group">
-    <label>Código de Vivienda</label>
-    <input type="text" id="perfil-referencia" placeholder="Ej: 1234ABC">
-    <small id="ref-status"></small> </div>
+                    
+                    <div class="form-group">
+                        <label>Código de Referencia</label>
+                        <input type="text" id="user-reference" placeholder="Ej: 1234ABC" style="text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">
+                        <small id="ref-status">Introduce el código de 7 dígitos de tu casero.</small>
+                    </div>
 
-<div class="form-group">
-    <label>Dirección de la Vivienda</label>
-    <input type="text" id="perfil-direccion" readonly style="background: #f0f0f0;" placeholder="Se completará con el código">
-</div>
+                    <div class="form-group">
+                        <label>Dirección Asignada</label>
+                        <input type="text" id="user-address" readonly style="background: #f5f5f5; color: #666;" placeholder="Se cargará automáticamente">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Móvil de contacto</label>
+                        <input type="tel" id="user-phone" placeholder="Tu número de teléfono">
+                    </div>
+
                     <button class="submit-btn" id="btnSave" onclick="saveUserData()">
                         <i class="fa-solid fa-floppy-disk"></i>
-                        Guardar Cambios
+                        Guardar y Vincular
                     </button>
                 </div>
             </div>
