@@ -238,14 +238,15 @@
                         <span class="icon"><i class="fa-solid fa-home"></i></span>
                         Datos de vivienda
                     </h2>
-                    <div class="form-group">
-                        <label>Dirección de la vivienda</label>
-                        <input type="text" id="user-address" placeholder="Ej: Calle Gran Vía 1, 4ºB" maxlength="200">
-                    </div>
-                    <div class="form-group">
-                        <label>Móvil de contacto</label>
-                        <input type="tel" id="user-phone" placeholder="Ej: 600000000" maxlength="15">
-                    </div>
+                   <div class="form-group">
+    <label>Código de Vivienda</label>
+    <input type="text" id="perfil-referencia" placeholder="Ej: 1234ABC">
+    <small id="ref-status"></small> </div>
+
+<div class="form-group">
+    <label>Dirección de la Vivienda</label>
+    <input type="text" id="perfil-direccion" readonly style="background: #f0f0f0;" placeholder="Se completará con el código">
+</div>
                     <button class="submit-btn" id="btnSave" onclick="saveUserData()">
                         <i class="fa-solid fa-floppy-disk"></i>
                         Guardar Cambios
